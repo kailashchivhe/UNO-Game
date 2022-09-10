@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "871664548904",
+    "project_id": "project1-9a84f",
+    "storage_bucket": "project1-9a84f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:871664548904:android:aa7a345d5eb8bc32e9891d",
+        "android_client_info": {
+          "package_name": "com.kai.unogame"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "871664548904-9n5brju0bpolllbl2252jsj7h719i5ul.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZE2qkg4NFp-AFPXjO8yVhSl7IdJovUIg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "871664548904-9n5brju0bpolllbl2252jsj7h719i5ul.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
