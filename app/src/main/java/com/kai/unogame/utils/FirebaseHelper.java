@@ -23,6 +23,7 @@ import com.google.firebase.storage.UploadTask;
 import com.kai.unogame.listener.LoginListener;
 import com.kai.unogame.listener.ProfileListener;
 import com.kai.unogame.listener.RegistrationListener;
+import com.kai.unogame.model.Game;
 import com.kai.unogame.model.User;
 
 import java.io.ByteArrayOutputStream;
@@ -121,5 +122,15 @@ public class FirebaseHelper {
                 }
             }
         });
+    }
+
+    public static void joinGame(Game game, String player2ID){
+        //Firebase function for player 2 to join a game
+    }
+    public static void startGame(String player1ID){
+        //Firebase function to start a game with player1 id
+    }
+    public static void displayGames(String gameID){
+        //Firebase function to retrive all games pending
     }
 }

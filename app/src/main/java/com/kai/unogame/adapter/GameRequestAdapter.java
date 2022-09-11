@@ -1,5 +1,10 @@
 package com.kai.unogame.adapter;
 
+import static com.google.android.material.internal.ContextUtils.getActivity;
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,13 +15,14 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kai.unogame.R;
+import com.kai.unogame.listener.JoinGameListener;
 import com.kai.unogame.model.Game;
+import com.kai.unogame.utils.FirebaseHelper;
 
 import java.util.List;
 
-public class GameRequestAdapter extends RecyclerView.Adapter<GameRequestHolder>{
+public class GameRequestAdapter extends RecyclerView.Adapter<GameRequestHolder> implements JoinGameListener {
     List<Game> gameList;
-
     public GameRequestAdapter(List<Game> gameList) {
         this.gameList = gameList;
     }
@@ -47,7 +53,17 @@ public class GameRequestAdapter extends RecyclerView.Adapter<GameRequestHolder>{
     }
     void onGameRequestClicked(Game game){
         //Go to game
+        FirebaseHelper.joinGame(game, FirebaseHelper.getUser().getUid());
+    }
 
+    @Override
+    public void gamedJoined() {
+        //Goto game fragment
+    }
+
+    @Override
+    public void gamedJoinedFailure(String message) {
+        Log.d("demo", "gamedJoinedFailure: " + message);
     }
 }
 class GameRequestHolder extends RecyclerView.ViewHolder{

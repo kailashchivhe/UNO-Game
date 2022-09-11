@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,13 +18,20 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.kai.unogame.R;
+import com.kai.unogame.adapter.GameRequestAdapter;
 import com.kai.unogame.databinding.FragmentHomeBinding;
+import com.kai.unogame.listener.StartGameListener;
+import com.kai.unogame.model.Game;
 import com.kai.unogame.utils.FirebaseHelper;
 
-public class HomeFragment extends Fragment {
+import java.util.List;
+
+public class HomeFragment extends Fragment implements StartGameListener {
 
     FragmentHomeBinding binding;
+    List<Game> gameList;
     AlertDialog.Builder builder;
+    GameRequestAdapter gameRequestAdapter;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +81,9 @@ public class HomeFragment extends Fragment {
 
             }
         });
+        gameRequestAdapter = new GameRequestAdapter(gameList);
+        binding.recyclerViewGameRequest.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
+        binding.recyclerViewGameRequest.setAdapter(gameRequestAdapter);
     }
 
     private void onLogoutClicked(){
@@ -85,6 +96,18 @@ public class HomeFragment extends Fragment {
     }
 
     private void startGame(){
+        FirebaseHelper.startGame(FirebaseHelper.getUser().getUid());
+    }
 
+    @Override
+    public void gameStarted(String gameID) {
+        FirebaseHelper.displayGames(gameID);
+    }
+
+    @Override
+    public void gameStartedFailure(String message) {
+        builder.setMessage(message);
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 }
