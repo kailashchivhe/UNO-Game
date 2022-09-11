@@ -33,9 +33,6 @@ public class FirebaseHelper {
     static FirebaseAuth firebaseAuth;
     static FirebaseFirestore firebaseFirestore;
     static FirebaseFirestore db;
-    private static StorageReference mStorageRef;
-    private static StorageTask mUploadTask;
-    public static final String TAG = "vidit";
 
     public static void initFirebase(){
         firebaseAuth = FirebaseAuth.getInstance();
@@ -57,52 +54,7 @@ public class FirebaseHelper {
         });
     }
 
-    protected static void upload(Bitmap bitmap, RegistrationListener registrationListener){
-        if (bitmap != null) {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-            byte[] data = baos.toByteArray();
-            mStorageRef = FirebaseStorage.getInstance().getReference("uploads");
-            StorageReference fileReference = mStorageRef.child(System.currentTimeMillis()+".JPEG");
-            mUploadTask = fileReference.putBytes(data)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Task<Uri> downloadUri = taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    HashMap<String,Object> map = new HashMap<>();
-                                    map.put("uri",uri.toString());
-                                    db.collection("unogame").document("Users").collection("Users").document(firebaseAuth.getCurrentUser().getUid()).update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            Log.d(TAG, "onSuccess: uploaded");
-                                        }
-                                    });
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    registrationListener.registeredFailure(e.getMessage());
-                                }
-                            });
-                            Log.d(TAG, "onSuccess: registration done");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            registrationListener.registeredFailure(e.getMessage());
-                        }
-                    });
-        }
-        else {
-            //Photo not clicked
-            registrationListener.registeredFailure("Photo not Clicked");
-        }
-    }
-
-    public static void register(String email, String password, String firstName, String lastName, String city, String gender, Bitmap bitmapProfile, RegistrationListener registerListener){
+    public static void register(String email, String password, String firstName, String lastName, String city, String gender, RegistrationListener registerListener){
         firebaseAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
@@ -124,7 +76,6 @@ public class FirebaseHelper {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if(task.isSuccessful()){
-                                            upload(bitmapProfile,registerListener);
                                             registerListener.registered();
                                         }
                                         else{

@@ -36,33 +36,33 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-//        FirebaseHelper.initFirebase();
+        FirebaseHelper.initFirebase();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-
-
+        switch (item.getItemId()) {
+            case android.R.id.home: {
+                NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main );
+                if( navController.getCurrentDestination().getDisplayName().equals("com.kai.project1:id/HomeFragment")){
+                    finish();
+                }
+                else{
+                    navController.navigateUp();
+                }
+                return true;
+            }
+        }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        return NavigationUI.navigateUp(navController, appBarConfiguration)
-                || super.onSupportNavigateUp();
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }

@@ -28,9 +28,10 @@ public class HomeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
+
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_main, menu);
+        inflater.inflate(R.menu.menu_main,menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -39,11 +40,11 @@ public class HomeFragment extends Fragment {
         int id = item.getItemId();
 
         if (id == R.id.action_profile) {
-//            onProfileClicked();
+            onProfileClicked();
             return true;
         }
         else if (id == R.id.action_new_game) {
-//            createRoom();
+            startGame();
             return true;
         }
         else if (id == R.id.action_logout) {
@@ -77,5 +78,13 @@ public class HomeFragment extends Fragment {
     private void onLogoutClicked(){
         FirebaseHelper.logout();
         NavHostFragment.findNavController(this).navigate(R.id.action_HomeFragment_to_LoginFragment);
+    }
+
+    private void onProfileClicked(){
+        NavHostFragment.findNavController(this).navigate(R.id.action_HomeFragment_to_ProfileFragment);
+    }
+
+    private void startGame(){
+
     }
 }
