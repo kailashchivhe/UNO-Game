@@ -8,7 +8,7 @@ public class Game {
 
     public Game(String gameID, String player1ID, String status) {
         this.gameID = gameID;
-        this.player1ID = player1ID;
+        this.player1ID = player1ID; 
         this.status = status;
     }
 

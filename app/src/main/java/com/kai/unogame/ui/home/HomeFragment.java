@@ -24,17 +24,19 @@ import com.kai.unogame.listener.StartGameListener;
 import com.kai.unogame.model.Game;
 import com.kai.unogame.utils.FirebaseHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HomeFragment extends Fragment implements StartGameListener {
 
     FragmentHomeBinding binding;
-    List<Game> gameList;
+    List<Game> gameList = new ArrayList<>();
     AlertDialog.Builder builder;
     GameRequestAdapter gameRequestAdapter;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -49,10 +51,6 @@ public class HomeFragment extends Fragment implements StartGameListener {
 
         if (id == R.id.action_profile) {
             onProfileClicked();
-            return true;
-        }
-        else if (id == R.id.action_new_game) {
-            startGame();
             return true;
         }
         else if (id == R.id.action_logout) {
@@ -71,16 +69,23 @@ public class HomeFragment extends Fragment implements StartGameListener {
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Alert!");
-        builder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        binding.gameRequestButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
+            public void onClick(View view) {
+                navigateToGame();
             }
         });
+    }
+
+    private void navigateToGame(){
+        NavHostFragment.findNavController(this ).navigate(R.id.action_HomeFragment_to_GameFragment);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         gameRequestAdapter = new GameRequestAdapter(gameList);
         binding.recyclerViewGameRequest.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
         binding.recyclerViewGameRequest.setAdapter(gameRequestAdapter);
@@ -93,10 +98,6 @@ public class HomeFragment extends Fragment implements StartGameListener {
 
     private void onProfileClicked(){
         NavHostFragment.findNavController(this).navigate(R.id.action_HomeFragment_to_ProfileFragment);
-    }
-
-    private void startGame(){
-        FirebaseHelper.startGame(FirebaseHelper.getUser().getUid());
     }
 
     @Override
