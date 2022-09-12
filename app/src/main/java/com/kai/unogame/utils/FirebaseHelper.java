@@ -133,4 +133,7 @@ public class FirebaseHelper {
     public static void displayGames(String gameID){
         //Firebase function to retrive all games pending
     }
+    public static void getMyCards(){
+        //Firebase function to get cards for a player
+    }
 }
