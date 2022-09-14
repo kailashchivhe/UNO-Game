@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -23,6 +24,7 @@ import com.google.firebase.storage.UploadTask;
 import com.kai.unogame.listener.GameRequestListener;
 import com.kai.unogame.listener.LoginListener;
 import com.kai.unogame.listener.ProfileListener;
+import com.kai.unogame.listener.ProfileRetrieveListener;
 import com.kai.unogame.listener.RegistrationListener;
 import com.kai.unogame.model.Game;
 import com.kai.unogame.model.User;
@@ -103,6 +105,27 @@ public class FirebaseHelper {
 
     public static void logout(){
         firebaseAuth.signOut();
+    }
+
+    public static void userDetails(ProfileRetrieveListener profileRetrieveListener){
+        DocumentReference dr = db.collection("unogame").document("Users").collection("Users").document(getUser().getUid());
+        dr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    DocumentSnapshot ds = task.getResult();
+                    String firstname = ds.get("firstname").toString();
+                    String lastname = ds.get("lastname").toString();
+                    String city = ds.get("city").toString();
+                    String gender = ds.get("gender").toString();
+                    profileRetrieveListener.profileRetrieved(new User(firstname,lastname,FirebaseHelper.getUser().getUid(),gender,city));
+                }
+                else{
+                    profileRetrieveListener.profileRetrievedFailure(task.getException().getMessage());
+                }
+            }
+        });
+
     }
 
     public static void profileUpdate(User user, ProfileListener profileListener){

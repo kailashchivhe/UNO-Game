@@ -16,10 +16,11 @@ import android.widget.Toast;
 import com.kai.unogame.R;
 import com.kai.unogame.databinding.FragmentProfileBinding;
 import com.kai.unogame.listener.ProfileListener;
+import com.kai.unogame.listener.ProfileRetrieveListener;
 import com.kai.unogame.model.User;
 import com.kai.unogame.utils.FirebaseHelper;
 
-public class ProfileFragment extends Fragment implements ProfileListener {
+public class ProfileFragment extends Fragment implements ProfileListener, ProfileRetrieveListener {
 
     FragmentProfileBinding binding;
     AlertDialog.Builder builder;
@@ -51,6 +52,7 @@ public class ProfileFragment extends Fragment implements ProfileListener {
 
             }
         });
+        FirebaseHelper.userDetails(this);
 
         binding.buttonProfileCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,7 +82,7 @@ public class ProfileFragment extends Fragment implements ProfileListener {
         else{
             gender = "female";
         }
-        User user = new User(firstname,lastname,gender,city, FirebaseHelper.getUser().getUid());
+        User user = new User(firstname,lastname,FirebaseHelper.getUser().getUid(),gender,city);
         FirebaseHelper.profileUpdate(user,this);
     }
 
@@ -92,6 +94,26 @@ public class ProfileFragment extends Fragment implements ProfileListener {
 
     @Override
     public void profileUpdateFailure(String message) {
+        builder.setMessage(message);
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    @Override
+    public void profileRetrieved(User user) {
+        binding.editTextProfileFirstName.setText(user.getFirstname());
+        binding.editTextProfileLastName.setText(user.getLastname());
+        binding.editTextProfileCity.setText(user.getCity());
+        if(user.getGender().equals("male")){
+            binding.radioButtonProfileMale.setChecked(true);
+        }
+        else{
+            binding.radioButtonProfileFemale.setChecked(true);
+        }
+    }
+
+    @Override
+    public void profileRetrievedFailure(String message) {
         builder.setMessage(message);
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
