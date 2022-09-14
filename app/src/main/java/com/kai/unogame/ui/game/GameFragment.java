@@ -13,12 +13,17 @@ import android.view.ViewGroup;
 import com.kai.unogame.R;
 import com.kai.unogame.adapter.PlayerCardsAdapter;
 import com.kai.unogame.databinding.FragmentGameBinding;
+import com.kai.unogame.model.Card;
 import com.kai.unogame.utils.FirebaseHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameFragment extends Fragment {
 
     FragmentGameBinding binding;
     PlayerCardsAdapter playerCardsAdapter;
+    List<Card> cardList = new ArrayList<>();
     public GameFragment() {
         // Required empty public constructor
     }
@@ -49,7 +54,7 @@ public class GameFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        playerCardsAdapter = new PlayerCardsAdapter();
+        playerCardsAdapter = new PlayerCardsAdapter(cardList);
         binding.recyclerViewMyCards.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
         binding.recyclerViewMyCards.setAdapter(playerCardsAdapter);
     }

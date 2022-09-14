@@ -20,9 +20,6 @@ public class PlayerCardsAdapter extends RecyclerView.Adapter<PlayerCardHolder> {
         this.cardList = cardList;
     }
 
-    public PlayerCardsAdapter() {
-    }
-
     @NonNull
     @Override
     public PlayerCardHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
