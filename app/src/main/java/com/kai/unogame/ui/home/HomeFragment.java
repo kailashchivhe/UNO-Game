@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import com.kai.unogame.R;
 import com.kai.unogame.adapter.GameRequestAdapter;
 import com.kai.unogame.databinding.FragmentHomeBinding;
+import com.kai.unogame.listener.GameRequestListener;
 import com.kai.unogame.listener.StartGameListener;
 import com.kai.unogame.model.Game;
 import com.kai.unogame.utils.FirebaseHelper;
@@ -27,7 +28,7 @@ import com.kai.unogame.utils.FirebaseHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomeFragment extends Fragment implements StartGameListener {
+public class HomeFragment extends Fragment implements StartGameListener, GameRequestListener {
 
     FragmentHomeBinding binding;
     List<Game> gameList = new ArrayList<>();
@@ -57,7 +58,6 @@ public class HomeFragment extends Fragment implements StartGameListener {
             onLogoutClicked();
             return true;
         }
-
         return false;
     }
 
@@ -102,11 +102,23 @@ public class HomeFragment extends Fragment implements StartGameListener {
 
     @Override
     public void gameStarted(String gameID) {
-        FirebaseHelper.displayGames(gameID);
+        FirebaseHelper.displayGames(gameID,this);
     }
 
     @Override
     public void gameStartedFailure(String message) {
+        builder.setMessage(message);
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    @Override
+    public void allGameRequests() {
+
+    }
+
+    @Override
+    public void allGameRequestsFailure(String message) {
         builder.setMessage(message);
         AlertDialog alertDialog = builder.create();
         alertDialog.show();

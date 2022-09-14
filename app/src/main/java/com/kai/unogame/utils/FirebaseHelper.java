@@ -20,6 +20,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
+import com.kai.unogame.listener.GameRequestListener;
 import com.kai.unogame.listener.LoginListener;
 import com.kai.unogame.listener.ProfileListener;
 import com.kai.unogame.listener.RegistrationListener;
@@ -130,7 +131,7 @@ public class FirebaseHelper {
     public static void startGame(String player1ID){
         //Firebase function to start a game with player1 id
     }
-    public static void displayGames(String gameID){
+    public static void displayGames(String gameID, GameRequestListener gameRequestListener){
         //Firebase function to retrive all games pending
     }
     public static void getMyCards(){
