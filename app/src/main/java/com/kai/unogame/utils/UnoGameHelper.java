@@ -1,63 +1,65 @@
 package com.kai.unogame.utils;
 
+import android.graphics.Color;
+
 import com.kai.unogame.model.Card;
 
 import java.util.HashSet;
 
 public class UnoGameHelper {
 
-    static Card red0 = new Card(1,"num","0");
-    static Card red1 = new Card(1,"num","1");
-    static Card red2 = new Card(1,"num","2");
-    static Card red3 = new Card(1,"num","3");
-    static Card red4 = new Card(1,"num","4");
-    static Card red5 = new Card(1,"num","5");
-    static Card red6 = new Card(1,"num","6");
-    static Card red7 = new Card(1,"num","7");
-    static Card red8 = new Card(1,"num","8");
-    static Card red9 = new Card(1,"num","9");
-    static Card redSkip = new Card(1,"special","Skip");
+    static Card red0 = new Card(Color.RED,"num","0");
+    static Card red1 = new Card(Color.RED,"num","1");
+    static Card red2 = new Card(Color.RED,"num","2");
+    static Card red3 = new Card(Color.RED,"num","3");
+    static Card red4 = new Card(Color.RED,"num","4");
+    static Card red5 = new Card(Color.RED,"num","5");
+    static Card red6 = new Card(Color.RED,"num","6");
+    static Card red7 = new Card(Color.RED,"num","7");
+    static Card red8 = new Card(Color.RED,"num","8");
+    static Card red9 = new Card(Color.RED,"num","9");
+    static Card redSkip = new Card(Color.RED,"special","Skip");
 
-    static Card green0 = new Card(2,"num","0");
-    static Card green1 = new Card(2,"num","1");
-    static Card green2 = new Card(2,"num","2");
-    static Card green3 = new Card(2,"num","3");
-    static Card green4 = new Card(2,"num","4");
-    static Card green5 = new Card(2,"num","5");
-    static Card green6 = new Card(2,"num","6");
-    static Card green7 = new Card(2,"num","7");
-    static Card green8 = new Card(2,"num","8");
-    static Card green9 = new Card(2,"num","9");
-    static Card greenSkip = new Card(2,"special","Skip");
+    static Card green0 = new Card(Color.GREEN,"num","0");
+    static Card green1 = new Card(Color.GREEN,"num","1");
+    static Card green2 = new Card(Color.GREEN,"num","2");
+    static Card green3 = new Card(Color.GREEN,"num","3");
+    static Card green4 = new Card(Color.GREEN,"num","4");
+    static Card green5 = new Card(Color.GREEN,"num","5");
+    static Card green6 = new Card(Color.GREEN,"num","6");
+    static Card green7 = new Card(Color.GREEN,"num","7");
+    static Card green8 = new Card(Color.GREEN,"num","8");
+    static Card green9 = new Card(Color.GREEN,"num","9");
+    static Card greenSkip = new Card(Color.GREEN,"special","Skip");
 
-    static Card yellow0 = new Card(3,"num","0");
-    static Card yellow1 = new Card(3,"num","1");
-    static Card yellow2 = new Card(3,"num","2");
-    static Card yellow3 = new Card(3,"num","3");
-    static Card yellow4 = new Card(3,"num","4");
-    static Card yellow5 = new Card(3,"num","5");
-    static Card yellow6 = new Card(3,"num","6");
-    static Card yellow7 = new Card(3,"num","7");
-    static Card yellow8 = new Card(3,"num","8");
-    static Card yellow9 = new Card(3,"num","9");
-    static Card yellowSkip = new Card(3,"special","Skip");
+    static Card yellow0 = new Card(Color.YELLOW,"num","0");
+    static Card yellow1 = new Card(Color.YELLOW,"num","1");
+    static Card yellow2 = new Card(Color.YELLOW,"num","2");
+    static Card yellow3 = new Card(Color.YELLOW,"num","3");
+    static Card yellow4 = new Card(Color.YELLOW,"num","4");
+    static Card yellow5 = new Card(Color.YELLOW,"num","5");
+    static Card yellow6 = new Card(Color.YELLOW,"num","6");
+    static Card yellow7 = new Card(Color.YELLOW,"num","7");
+    static Card yellow8 = new Card(Color.YELLOW,"num","8");
+    static Card yellow9 = new Card(Color.YELLOW,"num","9");
+    static Card yellowSkip = new Card(Color.YELLOW,"special","Skip");
 
-    static Card blue0 = new Card(4,"num","0");
-    static Card blue1 = new Card(4,"num","1");
-    static Card blue2 = new Card(4,"num","2");
-    static Card blue3 = new Card(4,"num","3");
-    static Card blue4 = new Card(4,"num","4");
-    static Card blue5 = new Card(4,"num","5");
-    static Card blue6 = new Card(4,"num","6");
-    static Card blue7 = new Card(4,"num","7");
-    static Card blue8 = new Card(4,"num","8");
-    static Card blue9 = new Card(4,"num","9");
-    static Card blueSkip = new Card(4,"special","Skip");
+    static Card blue0 = new Card(Color.BLUE,"num","0");
+    static Card blue1 = new Card(Color.BLUE,"num","1");
+    static Card blue2 = new Card(Color.BLUE,"num","2");
+    static Card blue3 = new Card(Color.BLUE,"num","3");
+    static Card blue4 = new Card(Color.BLUE,"num","4");
+    static Card blue5 = new Card(Color.BLUE,"num","5");
+    static Card blue6 = new Card(Color.BLUE,"num","6");
+    static Card blue7 = new Card(Color.BLUE,"num","7");
+    static Card blue8 = new Card(Color.BLUE,"num","8");
+    static Card blue9 = new Card(Color.BLUE,"num","9");
+    static Card blueSkip = new Card(Color.BLUE,"special","Skip");
 
-    static Card draw1 = new Card(5,"special","Draw 4");
-    static Card draw2 = new Card(5,"special","Draw 4");
-    static Card draw3 = new Card(5,"special","Draw 4");
-    static Card draw4 = new Card(5,"special","Draw 4");
+    static Card draw1 = new Card(Color.BLACK,"special","Draw 4");
+    static Card draw2 = new Card(Color.BLACK,"special","Draw 4");
+    static Card draw3 = new Card(Color.BLACK,"special","Draw 4");
+    static Card draw4 = new Card(Color.BLACK,"special","Draw 4");
 
 
     static HashSet<Card> getAllCards(){
