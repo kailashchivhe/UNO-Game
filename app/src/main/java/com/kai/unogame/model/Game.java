@@ -5,6 +5,15 @@ public class Game {
     String player1ID;
     String player2ID;
     String status;
+    String turnID;
+
+    public String getTurnID() {
+        return turnID;
+    }
+
+    public void setTurnID(String turnID) {
+        this.turnID = turnID;
+    }
 
     public Game(String gameID, String player1ID, String status) {
         this.gameID = gameID;

@@ -10,15 +10,18 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kai.unogame.R;
+import com.kai.unogame.listener.CardClickedListener;
 import com.kai.unogame.model.Card;
 
 import java.util.List;
 
 public class PlayerCardsAdapter extends RecyclerView.Adapter<PlayerCardHolder> {
     List<Card> cardList;
+    CardClickedListener cardClickedListener;
 
-    public PlayerCardsAdapter(List<Card> cardList) {
+    public PlayerCardsAdapter(List<Card> cardList, CardClickedListener cardClickedListener) {
         this.cardList = cardList;
+        this.cardClickedListener = cardClickedListener;
     }
 
     @NonNull
@@ -38,7 +41,7 @@ public class PlayerCardsAdapter extends RecyclerView.Adapter<PlayerCardHolder> {
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onCardClicked();
+                onCardClicked(card);
             }
         });
     }
@@ -47,8 +50,9 @@ public class PlayerCardsAdapter extends RecyclerView.Adapter<PlayerCardHolder> {
     public int getItemCount() {
         return cardList.size();
     }
-    void onCardClicked(){
 
+    void onCardClicked(Card card){
+        cardClickedListener.cardClickedSuccessfully(card);
     }
 }
 class PlayerCardHolder extends RecyclerView.ViewHolder{

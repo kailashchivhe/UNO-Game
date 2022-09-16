@@ -2,6 +2,8 @@ package com.kai.unogame.utils;
 
 import android.graphics.Color;
 
+import com.kai.unogame.listener.CardCheckedListener;
+import com.kai.unogame.listener.CardClickedListener;
 import com.kai.unogame.model.Card;
 
 import java.util.HashMap;
@@ -20,7 +22,7 @@ public class UnoGameHelper {
     static Card red7 = new Card(8,Color.RED,"num","7");
     static Card red8 = new Card(9,Color.RED,"num","8");
     static Card red9 = new Card(10,Color.RED,"num","9");
-    static Card redSkip = new Card(11,Color.RED,"special","Skip");
+    static Card redSkip = new Card(11,Color.RED,"skip","Skip");
 
     static Card green0 = new Card(12,Color.GREEN,"num","0");
     static Card green1 = new Card(13,Color.GREEN,"num","1");
@@ -32,7 +34,7 @@ public class UnoGameHelper {
     static Card green7 = new Card(19,Color.GREEN,"num","7");
     static Card green8 = new Card(20,Color.GREEN,"num","8");
     static Card green9 = new Card(21,Color.GREEN,"num","9");
-    static Card greenSkip = new Card(22,Color.GREEN,"special","Skip");
+    static Card greenSkip = new Card(22,Color.GREEN,"skip","Skip");
 
     static Card yellow0 = new Card(23,Color.YELLOW,"num","0");
     static Card yellow1 = new Card(24,Color.YELLOW,"num","1");
@@ -44,7 +46,7 @@ public class UnoGameHelper {
     static Card yellow7 = new Card(30,Color.YELLOW,"num","7");
     static Card yellow8 = new Card(31,Color.YELLOW,"num","8");
     static Card yellow9 = new Card(32,Color.YELLOW,"num","9");
-    static Card yellowSkip = new Card(33,Color.YELLOW,"special","Skip");
+    static Card yellowSkip = new Card(33,Color.YELLOW,"skip","Skip");
 
     static Card blue0 = new Card(34,Color.BLUE,"num","0");
     static Card blue1 = new Card(35,Color.BLUE,"num","1");
@@ -56,12 +58,12 @@ public class UnoGameHelper {
     static Card blue7 = new Card(41,Color.BLUE,"num","7");
     static Card blue8 = new Card(42,Color.BLUE,"num","8");
     static Card blue9 = new Card(43,Color.BLUE,"num","9");
-    static Card blueSkip = new Card(44,Color.BLUE,"special","Skip");
+    static Card blueSkip = new Card(44,Color.BLUE,"skip","Skip");
 
-    static Card draw1 = new Card(45,Color.WHITE,"special","Draw 4");
-    static Card draw2 = new Card(45,Color.WHITE,"special","Draw 4");
-    static Card draw3 = new Card(46,Color.WHITE,"special","Draw 4");
-    static Card draw4 = new Card(47,Color.WHITE,"special","Draw 4");
+    static Card draw1 = new Card(45,Color.WHITE,"draw4","Draw 4");
+    static Card draw2 = new Card(45,Color.WHITE,"draw4","Draw 4");
+    static Card draw3 = new Card(46,Color.WHITE,"draw4","Draw 4");
+    static Card draw4 = new Card(47,Color.WHITE,"draw4","Draw 4");
 
 
     public static HashMap<Integer, Card> getAllCards(){
@@ -81,5 +83,39 @@ public class UnoGameHelper {
             put(45,draw1);put(46,draw2);put(47,draw3);put(48,draw4);
         }};
         return cards;
+    }
+
+    public static Boolean checkCard(Card topDeck, Card playedCard, CardCheckedListener cardCheckedListener){
+        if(playedCard.getType().equals("skip")){
+            if(topDeck.getColor() == playedCard.getColor()){
+                //same colour skip
+                //card can be played
+                //change top card
+                //do not change turn
+            }
+            else{
+                //Card can not be played
+                cardCheckedListener.cardCheckedFailure("You can not play this card");
+            }
+        }
+        else if(playedCard.getType().equals("num")){
+            if(playedCard.getColor() == topDeck.getColor()){
+                //same colour
+                //card can be played
+                //change top card
+                //change turn
+            }
+            else{
+                //Card can not be played
+                cardCheckedListener.cardCheckedFailure("You can not play this card");
+            }
+        }
+        else{
+            //draw 4
+            //select 1 colour from green, blue, yellow, red
+            //add 4 cards to other player
+            //change turn
+        }
+        return true;
     }
 }
