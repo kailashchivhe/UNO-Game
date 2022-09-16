@@ -1,14 +1,9 @@
 package com.kai.unogame.utils;
 
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -16,12 +11,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.StorageTask;
-import com.google.firebase.storage.UploadTask;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.kai.unogame.listener.CreateGameListener;
 import com.kai.unogame.listener.GameRequestListener;
+import com.kai.unogame.listener.JoinGameListener;
 import com.kai.unogame.listener.LoginListener;
 import com.kai.unogame.listener.ProfileListener;
 import com.kai.unogame.listener.ProfileRetrieveListener;
@@ -29,7 +24,6 @@ import com.kai.unogame.listener.RegistrationListener;
 import com.kai.unogame.model.Game;
 import com.kai.unogame.model.User;
 
-import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 
 public class FirebaseHelper {
@@ -148,16 +142,58 @@ public class FirebaseHelper {
         });
     }
 
-    public static void joinGame(Game game, String player2ID){
-        //Firebase function for player 2 to join a game
+    public static void createGame(CreateGameListener createGameListener){
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("status", false);
+        map.put("createdStatus", true);
+        map.put("user1", firebaseAuth.getCurrentUser().getUid() );
+        map.put("name", "UNO Game");
+        firebaseFirestore.collection("unogame").document("game").set(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+//                    gameRequestListener.success();
+                }
+                else{
+//                    gameRequestListener.failure(task.getException().getMessage());
+                }
+            }
+        });
     }
-    public static void startGame(String player1ID){
-        //Firebase function to start a game with player1 id
+
+    public static void getCreatedStatus(){
+        firebaseFirestore.collection("unogame").document("game").addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if( error == null && value.get("createdStatus") != null){
+                    boolean status = (boolean) value.get("createdStatus");
+                    String userId = (String) value.get("user1");
+                    if(status && !(userId.contains(firebaseAuth.getUid()))){
+//                        joinGameListener.gamedJoined();
+                    }
+                }
+                else if(error != null){
+//                    joinGameListener.gamedJoinedFailure(error.getMessage());
+                }
+            }
+        });
     }
-    public static void displayGames(String gameID, GameRequestListener gameRequestListener){
-        //Firebase function to retrive all games pending
+
+    public static void joinGame(JoinGameListener joinGameListener){
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("status", true);
+        map.put("user2", firebaseAuth.getCurrentUser().getUid() );
+        firebaseFirestore.collection("unogame").document("game").set(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    //getCards and update
+                }
+                else{
+
+                }
+            }
+        });
     }
-    public static void getMyCards(){
-        //Firebase function to get cards for a player
-    }
+
 }

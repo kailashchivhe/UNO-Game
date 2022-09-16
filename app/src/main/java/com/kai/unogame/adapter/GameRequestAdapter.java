@@ -53,7 +53,7 @@ public class GameRequestAdapter extends RecyclerView.Adapter<GameRequestHolder> 
     }
     void onGameRequestClicked(Game game){
         //Go to game
-        FirebaseHelper.joinGame(game, FirebaseHelper.getUser().getUid());
+//        FirebaseHelper.joinGame(game, FirebaseHelper.getUser().getUid());
     }
 
     @Override

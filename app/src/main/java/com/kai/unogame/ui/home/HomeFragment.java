@@ -7,6 +7,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -28,12 +30,12 @@ import com.kai.unogame.utils.FirebaseHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomeFragment extends Fragment implements StartGameListener, GameRequestListener {
+public class HomeFragment extends Fragment{
 
     FragmentHomeBinding binding;
-    List<Game> gameList = new ArrayList<>();
     AlertDialog.Builder builder;
-    GameRequestAdapter gameRequestAdapter;
+    HomeViewModel homeViewModel;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,9 +73,26 @@ public class HomeFragment extends Fragment implements StartGameListener, GameReq
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        homeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
         binding.gameRequestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                homeViewModel.createGame();
+            }
+        });
+
+        homeViewModel.getCreateStatusLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if(aBoolean){
+                    binding.gameJoinButton.setEnabled(true);
+                }
+            }
+        });
+
+        homeViewModel.getJoinStatusLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
                 navigateToGame();
             }
         });
@@ -86,9 +105,6 @@ public class HomeFragment extends Fragment implements StartGameListener, GameReq
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        gameRequestAdapter = new GameRequestAdapter(gameList);
-        binding.recyclerViewGameRequest.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
-        binding.recyclerViewGameRequest.setAdapter(gameRequestAdapter);
     }
 
     private void onLogoutClicked(){
@@ -98,29 +114,5 @@ public class HomeFragment extends Fragment implements StartGameListener, GameReq
 
     private void onProfileClicked(){
         NavHostFragment.findNavController(this).navigate(R.id.action_HomeFragment_to_ProfileFragment);
-    }
-
-    @Override
-    public void gameStarted(String gameID) {
-        FirebaseHelper.displayGames(gameID,this);
-    }
-
-    @Override
-    public void gameStartedFailure(String message) {
-        builder.setMessage(message);
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-    }
-
-    @Override
-    public void allGameRequests() {
-
-    }
-
-    @Override
-    public void allGameRequestsFailure(String message) {
-        builder.setMessage(message);
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
     }
 }
