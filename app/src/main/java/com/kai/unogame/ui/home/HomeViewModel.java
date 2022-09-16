@@ -31,6 +31,10 @@ public class HomeViewModel extends AndroidViewModel implements CreateGameListene
         FirebaseHelper.joinGame( this );
     }
 
+    public void initCreateStatus(){
+        FirebaseHelper.getCreatedStatus( this );
+    }
+
     @Override
     public void gameCreatedSuccessfully() {
         createGameLiveData.postValue(true);
