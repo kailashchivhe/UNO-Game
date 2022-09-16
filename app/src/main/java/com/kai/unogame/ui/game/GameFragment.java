@@ -15,8 +15,11 @@ import com.kai.unogame.adapter.PlayerCardsAdapter;
 import com.kai.unogame.databinding.FragmentGameBinding;
 import com.kai.unogame.model.Card;
 import com.kai.unogame.utils.FirebaseHelper;
+import com.kai.unogame.utils.UnoGameHelper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 public class GameFragment extends Fragment {
@@ -53,6 +56,15 @@ public class GameFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        HashMap<Integer, Card> hashSet =  UnoGameHelper.getAllCards();
+        cardList.add(hashSet.get(1));
+        cardList.add(hashSet.get(11));
+        cardList.add(hashSet.get(45));
+        cardList.add(hashSet.get(33));
+        cardList.add(hashSet.get(23));
+        cardList.add(hashSet.get(37));
+
 
         playerCardsAdapter = new PlayerCardsAdapter(cardList);
         binding.recyclerViewMyCards.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));

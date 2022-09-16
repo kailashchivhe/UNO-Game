@@ -1,5 +1,6 @@
 package com.kai.unogame.adapter;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +33,8 @@ public class PlayerCardsAdapter extends RecyclerView.Adapter<PlayerCardHolder> {
     public void onBindViewHolder(@NonNull PlayerCardHolder holder, int position) {
         Card card = cardList.get(position);
         holder.name.setText(card.getValue());
-        holder.view.setBackgroundColor(card.getColor());
+        holder.name.setTextColor(card.getColor());
+//        holder.view.setBackgroundColor(card.getColor());
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
