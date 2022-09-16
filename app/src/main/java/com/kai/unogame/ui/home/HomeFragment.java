@@ -88,6 +88,7 @@ public class HomeFragment extends Fragment{
             }
         });
 
+        homeViewModel.initCreateStatus();
         homeViewModel.getCreateGameStatusLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
