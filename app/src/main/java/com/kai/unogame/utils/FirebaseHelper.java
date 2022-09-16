@@ -22,6 +22,7 @@ import com.kai.unogame.listener.LoginListener;
 import com.kai.unogame.listener.ProfileListener;
 import com.kai.unogame.listener.ProfileRetrieveListener;
 import com.kai.unogame.listener.RegistrationListener;
+import com.kai.unogame.listener.StartGameListener;
 import com.kai.unogame.model.Game;
 import com.kai.unogame.model.User;
 
@@ -195,6 +196,24 @@ public class FirebaseHelper {
                 }
                 else{
                     joinGameListener.gamedJoinedFailure(task.getException().getMessage());
+                }
+            }
+        });
+    }
+
+
+    public static void gameStartedListener(StartGameListener startGameListener){
+        firebaseFirestore.collection("unogame").document("game").addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if( error == null && value.get("status") != null){
+                    boolean status = (boolean) value.get("status");
+                    if(status){
+                        startGameListener.gameStarted();
+                    }
+                }
+                else if(error != null){
+                    startGameListener.gameStartedFailure( error.getMessage() );
                 }
             }
         });

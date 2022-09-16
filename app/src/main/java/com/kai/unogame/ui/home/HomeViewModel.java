@@ -9,18 +9,21 @@ import androidx.lifecycle.MutableLiveData;
 import com.kai.unogame.listener.CreateGameListener;
 import com.kai.unogame.listener.CreateStatusListener;
 import com.kai.unogame.listener.JoinGameListener;
+import com.kai.unogame.listener.StartGameListener;
 import com.kai.unogame.utils.FirebaseHelper;
 
-public class HomeViewModel extends AndroidViewModel implements CreateGameListener, JoinGameListener, CreateStatusListener {
+public class HomeViewModel extends AndroidViewModel implements CreateGameListener, JoinGameListener, CreateStatusListener, StartGameListener {
     MutableLiveData<Boolean> createGameLiveData;
     MutableLiveData<Boolean> joinStatusLiveData;
     MutableLiveData<Boolean> createGameStatusLiveData;
+    MutableLiveData<Boolean> startStatusLiveData;
 
     public HomeViewModel(@NonNull Application application) {
         super(application);
         createGameLiveData = new MutableLiveData<>();
         joinStatusLiveData = new MutableLiveData<>();
         createGameStatusLiveData = new MutableLiveData<>();
+        startStatusLiveData = new MutableLiveData<>();
     }
 
     public void createGame(){
@@ -31,6 +34,9 @@ public class HomeViewModel extends AndroidViewModel implements CreateGameListene
         FirebaseHelper.joinGame( this );
     }
 
+    public void initStartStatus(){
+        FirebaseHelper.gameStartedListener(this);
+    }
     public void initCreateStatus(){
         FirebaseHelper.getCreatedStatus( this );
     }
@@ -75,5 +81,19 @@ public class HomeViewModel extends AndroidViewModel implements CreateGameListene
     @Override
     public void createStatusFailure(String message) {
         createGameStatusLiveData.postValue(false);
+    }
+
+    @Override
+    public void gameStarted() {
+        startStatusLiveData.postValue(true);
+    }
+
+    @Override
+    public void gameStartedFailure(String message) {
+        startStatusLiveData.postValue(false);
+    }
+
+    public MutableLiveData<Boolean> getStartStatusLiveData() {
+        return startStatusLiveData;
     }
 }

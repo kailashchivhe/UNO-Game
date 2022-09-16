@@ -72,19 +72,36 @@ public class HomeFragment extends Fragment{
             }
         });
 
+        binding.gameJoinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                homeViewModel.joinGame();
+            }
+        });
         homeViewModel.getCreateGameLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
                 if(aBoolean){
-
+                    binding.gameRequestButton.setEnabled(false);
                 }
             }
         });
 
+        homeViewModel.initStartStatus();
+        homeViewModel.getStartStatusLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if(aBoolean){
+                    navigateToGame();
+                }
+            }
+        });
+
+
         homeViewModel.getJoinStatusLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                navigateToGame();
+
             }
         });
 

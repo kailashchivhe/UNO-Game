@@ -1,6 +1,6 @@
 package com.kai.unogame.listener;
 
 public interface StartGameListener {
-    void gameStarted(String gameID);
+    void gameStarted();
     void gameStartedFailure(String message);
 }
