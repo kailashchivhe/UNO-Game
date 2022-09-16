@@ -5,20 +5,22 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.kai.unogame.listener.CreateGameListener;
+import com.kai.unogame.listener.CreateStatusListener;
 import com.kai.unogame.listener.JoinGameListener;
 import com.kai.unogame.utils.FirebaseHelper;
 
-public class HomeViewModel extends AndroidViewModel implements CreateGameListener, JoinGameListener {
-    MutableLiveData<Boolean> createStatusLiveData;
+public class HomeViewModel extends AndroidViewModel implements CreateGameListener, JoinGameListener, CreateStatusListener {
+    MutableLiveData<Boolean> createGameLiveData;
     MutableLiveData<Boolean> joinStatusLiveData;
+    MutableLiveData<Boolean> createGameStatusLiveData;
 
     public HomeViewModel(@NonNull Application application) {
         super(application);
-        createStatusLiveData = new MutableLiveData<>();
+        createGameLiveData = new MutableLiveData<>();
         joinStatusLiveData = new MutableLiveData<>();
+        createGameStatusLiveData = new MutableLiveData<>();
     }
 
     public void createGame(){
@@ -31,7 +33,7 @@ public class HomeViewModel extends AndroidViewModel implements CreateGameListene
 
     @Override
     public void gameCreatedSuccessfully() {
-        createStatusLiveData.postValue(true);
+        createGameLiveData.postValue(true);
     }
 
     @Override
@@ -46,14 +48,28 @@ public class HomeViewModel extends AndroidViewModel implements CreateGameListene
 
     @Override
     public void gamedJoinedFailure(String message) {
-//        joinStatusLiveData.postValue(false);
+        joinStatusLiveData.postValue(false);
     }
 
-    public MutableLiveData<Boolean> getCreateStatusLiveData() {
-        return createStatusLiveData;
+    public MutableLiveData<Boolean> getCreateGameLiveData() {
+        return createGameLiveData;
     }
 
     public MutableLiveData<Boolean> getJoinStatusLiveData() {
         return joinStatusLiveData;
+    }
+
+    public MutableLiveData<Boolean> getCreateGameStatusLiveData() {
+        return createGameStatusLiveData;
+    }
+
+    @Override
+    public void createStatusSuccessfully() {
+        createGameStatusLiveData.postValue(true);
+    }
+
+    @Override
+    public void createStatusFailure(String message) {
+        createGameStatusLiveData.postValue(false);
     }
 }

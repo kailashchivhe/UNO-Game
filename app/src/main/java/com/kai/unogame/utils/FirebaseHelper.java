@@ -15,6 +15,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.kai.unogame.listener.CreateGameListener;
+import com.kai.unogame.listener.CreateStatusListener;
 import com.kai.unogame.listener.GameRequestListener;
 import com.kai.unogame.listener.JoinGameListener;
 import com.kai.unogame.listener.LoginListener;
@@ -153,15 +154,17 @@ public class FirebaseHelper {
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
 //                    gameRequestListener.success();
+                    createGameListener.gameCreatedSuccessfully();
                 }
                 else{
 //                    gameRequestListener.failure(task.getException().getMessage());
+                    createGameListener.gameCreationFailure(task.getException().getMessage());
                 }
             }
         });
     }
 
-    public static void getCreatedStatus(){
+    public static void getCreatedStatus(CreateStatusListener createStatusListener){
         firebaseFirestore.collection("unogame").document("game").addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -169,11 +172,11 @@ public class FirebaseHelper {
                     boolean status = (boolean) value.get("createdStatus");
                     String userId = (String) value.get("user1");
                     if(status && !(userId.contains(firebaseAuth.getUid()))){
-//                        joinGameListener.gamedJoined();
+                        createStatusListener.createStatusSuccessfully();
                     }
                 }
                 else if(error != null){
-//                    joinGameListener.gamedJoinedFailure(error.getMessage());
+                    createStatusListener.createStatusFailure(error.getMessage());
                 }
             }
         });
@@ -188,9 +191,10 @@ public class FirebaseHelper {
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
                     //getCards and update
+                    joinGameListener.gamedJoined();
                 }
                 else{
-
+                    joinGameListener.gamedJoinedFailure(task.getException().getMessage());
                 }
             }
         });

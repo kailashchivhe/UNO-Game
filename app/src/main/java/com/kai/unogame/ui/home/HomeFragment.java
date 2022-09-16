@@ -1,7 +1,6 @@
 package com.kai.unogame.ui.home;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,7 +9,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,15 +18,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.kai.unogame.R;
-import com.kai.unogame.adapter.GameRequestAdapter;
 import com.kai.unogame.databinding.FragmentHomeBinding;
-import com.kai.unogame.listener.GameRequestListener;
-import com.kai.unogame.listener.StartGameListener;
-import com.kai.unogame.model.Game;
 import com.kai.unogame.utils.FirebaseHelper;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class HomeFragment extends Fragment{
 
@@ -81,11 +72,11 @@ public class HomeFragment extends Fragment{
             }
         });
 
-        homeViewModel.getCreateStatusLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+        homeViewModel.getCreateGameLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
                 if(aBoolean){
-                    binding.gameJoinButton.setEnabled(true);
+
                 }
             }
         });
@@ -94,6 +85,15 @@ public class HomeFragment extends Fragment{
             @Override
             public void onChanged(Boolean aBoolean) {
                 navigateToGame();
+            }
+        });
+
+        homeViewModel.getCreateGameStatusLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if(aBoolean){
+                    binding.gameJoinButton.setEnabled(true);
+                }
             }
         });
     }
