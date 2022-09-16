@@ -187,7 +187,7 @@ public class FirebaseHelper {
         HashMap<String, Object> map = new HashMap<>();
         map.put("status", true);
         map.put("user2", firebaseAuth.getCurrentUser().getUid() );
-        firebaseFirestore.collection("unogame").document("game").set(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+        firebaseFirestore.collection("unogame").document("game").update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
