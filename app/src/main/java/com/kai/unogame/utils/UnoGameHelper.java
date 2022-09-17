@@ -126,7 +126,7 @@ public class UnoGameHelper {
         Random random = new Random();
         int cnt = 0;
         HashSet<Integer> set = new HashSet<>();
-        while(cnt < 15){
+        while(cnt < 14){
             int number = random.nextInt(49 );
             if(number != 0 && !set.contains(number)){
                 set.add(number);
@@ -136,8 +136,8 @@ public class UnoGameHelper {
         return  set;
     }
 
-    public static HashSet<Integer> getDeck(HashSet<Integer> userSet){
-        HashSet<Integer> deck = new HashSet<>();
+    public static ArrayList<Integer> getDeck(HashSet<Integer> userSet){
+        ArrayList<Integer> deck = new ArrayList<>();
         for( Map.Entry<Integer,Card> mapElement :getAllCards().entrySet()){
             if(!userSet.contains(mapElement.getKey())){
                 deck.add(mapElement.getKey());

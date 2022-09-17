@@ -210,9 +210,9 @@ public class FirebaseHelper {
                 if(task.isSuccessful()){
                     //getCards and update
                     HashSet<Integer> userSet = UnoGameHelper.getUsersCards();
-                    HashSet<Integer> deckSet = UnoGameHelper.getDeck( userSet );
+                    ArrayList<Integer> deckList = UnoGameHelper.getDeck( userSet );
                     HashMap<String, Object> gameMap = new HashMap<>();
-                    gameMap.put("deck", deckSet);
+                    gameMap.put("deck", deckList);
                     ArrayList<Integer> user1List = new ArrayList<>();
                     ArrayList<Integer> user2List = new ArrayList<>();
                     int cnt = 0;
