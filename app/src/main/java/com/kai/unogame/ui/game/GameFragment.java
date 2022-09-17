@@ -41,8 +41,8 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
 
     FragmentGameBinding binding;
     PlayerCardsAdapter playerCardsAdapter;
-    List<Card> userCardList = new ArrayList<>();
-    List<Card> deckCardList = new ArrayList<>();
+    ArrayList<Card> userCardList = new ArrayList<>();
+    ArrayList<Card> deckCardList = new ArrayList<>();
     Card topCard;
     GameViewModel gameViewModel;
     String turnId;
@@ -83,6 +83,16 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
         binding.recyclerViewMyCards.setAdapter(playerCardsAdapter);
         gameViewModel.getDeckCards();
         gameViewModel.getUserCards();
+        gameViewModel.getTopCard();
+
+        gameViewModel.getTopCardLiveData().observe(getViewLifecycleOwner(), new Observer<Card>() {
+            @Override
+            public void onChanged(Card card) {
+                topCard = card;
+                initTopCard();
+            }
+        });
+
         gameViewModel.getTurnLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String uid) {
@@ -103,9 +113,7 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
             @Override
             public void onChanged(ArrayList<Card> cards) {
                 deckCardList.clear();
-                topCard =cards.remove(0);
                 deckCardList.addAll(cards);
-                initTopCard();
             }
         });
 
@@ -138,8 +146,10 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
 
     void onDrawCardClicked(){
         userCardList.add(deckCardList.remove(0));
-        playerCardsAdapter.notifyDataSetChanged();
+        gameViewModel.updateUserCards(userCardList);
+        gameViewModel.updateDeck(deckCardList);
     }
+
     private void showAlert(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Alert!");
@@ -169,27 +179,28 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     }
 
     @Override
-    public void cardNumSuccesfull(Card newTopCard) {
-        topCard = newTopCard;
-        initTopCard();
-        //set newTopCard
+    public void cardNumSuccessful(Card newTopCard) {
+        gameViewModel.updateTopCard(newTopCard);
         userCardList.remove(newTopCard);
-        playerCardsAdapter.notifyDataSetChanged();
-        //change turn
-
+        if(userCardList.isEmpty()){
+            showAlert("Winner");
+        }
+        else {
+            gameViewModel.updateUserCards(userCardList);
+            gameViewModel.updateTurn();
+        }
     }
 
     @Override
-    public void cardSkipSuccesfull(Card newTopCard) {
+    public void cardSkipSuccessful(Card newTopCard) {
         //set newTopCard
-        topCard = newTopCard;
-        initTopCard();
+        gameViewModel.updateTopCard(newTopCard);
         userCardList.remove(newTopCard);
-        playerCardsAdapter.notifyDataSetChanged();
+        gameViewModel.updateUserCards(userCardList);
     }
 
     @Override
-    public void cardDraw4Succesfull(Card newTopCard) {
+    public void cardDraw4Successful(Card newTopCard) {
         //set newTopCard
         topCard = newTopCard;
         initTopCard();
@@ -204,28 +215,4 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     public void cardCheckedFailure(String message) {
         showAlert(message);
     }
-
-//    @Override
-//    public void userCardsSuccess(ArrayList<Long> list) {
-//        userCardList = getCardDetailsList(list);
-//        playerCardsAdapter = new PlayerCardsAdapter(userCardList,this);
-//        binding.recyclerViewMyCards.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
-//        binding.recyclerViewMyCards.setAdapter(playerCardsAdapter);
-//    }
-//
-//    @Override
-//    public void userFailure(String message) {
-//        showAlert(message);
-//    }
-//
-//    @Override
-//    public void deckCardsSuccess(ArrayList<Long> list) {
-//        deckCardList = getCardDetailsList(list);
-//        Card card = deckCardList.remove(0);
-//    }
-//
-//    @Override
-//    public void deckFailure(String message) {
-//        showAlert(message);
-//    }
 }

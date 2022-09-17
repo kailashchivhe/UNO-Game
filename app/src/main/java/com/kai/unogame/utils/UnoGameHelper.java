@@ -3,7 +3,6 @@ package com.kai.unogame.utils;
 import android.graphics.Color;
 
 import com.kai.unogame.listener.CardCheckedListener;
-import com.kai.unogame.listener.CardClickedListener;
 import com.kai.unogame.model.Card;
 
 import java.util.ArrayList;
@@ -92,7 +91,7 @@ public class UnoGameHelper {
         if(playedCard.getType().equals("skip")){
             if(topDeck.getColor() == playedCard.getColor()){
                 //same colour skip
-                cardCheckedListener.cardSkipSuccesfull(playedCard);
+                cardCheckedListener.cardSkipSuccessful(playedCard);
             }
             else{
                 //Card can not be played
@@ -102,7 +101,7 @@ public class UnoGameHelper {
         else if(playedCard.getType().equals("num")){
             if(playedCard.getColor() == topDeck.getColor()){
                 //same colour
-                cardCheckedListener.cardNumSuccesfull(playedCard);
+                cardCheckedListener.cardNumSuccessful(playedCard);
             }
             else{
                 //Card can not be played
@@ -111,7 +110,7 @@ public class UnoGameHelper {
         }
         else{
             //draw 4
-            cardCheckedListener.cardDraw4Succesfull(playedCard);
+            cardCheckedListener.cardDraw4Successful(playedCard);
         }
     }
 
@@ -148,5 +147,17 @@ public class UnoGameHelper {
             cardArrayList.add(getAllCards().get(num));
         }
         return cardArrayList;
+    }
+
+    public static ArrayList<Long> getLongList(ArrayList<Card> userList) {
+        ArrayList<Long> data = new ArrayList<>();
+        for(Card card: userList){
+            data.add((long) card.getId());
+        }
+        return data;
+    }
+
+    public static Card getCardObject(Long topCard) {
+        return getAllCards().get(topCard);
     }
 }

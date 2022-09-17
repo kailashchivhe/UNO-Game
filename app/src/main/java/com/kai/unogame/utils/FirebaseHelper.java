@@ -1,5 +1,7 @@
 package com.kai.unogame.utils;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -12,6 +14,7 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.kai.unogame.listener.CreateGameListener;
@@ -24,14 +27,18 @@ import com.kai.unogame.listener.ProfileListener;
 import com.kai.unogame.listener.ProfileRetrieveListener;
 import com.kai.unogame.listener.RegistrationListener;
 import com.kai.unogame.listener.StartGameListener;
+import com.kai.unogame.listener.TopCardListener;
 import com.kai.unogame.listener.TurnListener;
+import com.kai.unogame.listener.UpdateTopCardListener;
 import com.kai.unogame.listener.UserCardsListener;
+import com.kai.unogame.model.Card;
 import com.kai.unogame.model.Game;
 import com.kai.unogame.model.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Objects;
 
 public class FirebaseHelper {
 
@@ -213,6 +220,7 @@ public class FirebaseHelper {
                     HashSet<Long> userSet = UnoGameHelper.getUsersCards();
                     ArrayList<Long> deckList = UnoGameHelper.getDeck( userSet );
                     HashMap<String, Object> gameMap = new HashMap<>();
+                    gameMap.put("topCard", deckList.remove(0));
                     gameMap.put("deck", deckList);
                     ArrayList<Long> user1List = new ArrayList<>();
                     ArrayList<Long> user2List = new ArrayList<>();
@@ -268,35 +276,187 @@ public class FirebaseHelper {
     }
 
     public static void getUserCards(UserCardsListener userCardsListener){
-        firebaseFirestore.collection("unogame").document("game").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        firebaseFirestore.collection("unogame").document("game").addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()){
-                    String user1 = (String) task.getResult().get("user1");
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if( error == null && Objects.requireNonNull(value).contains("user1") && value.contains("deck")){
+                    String user1 = (String) value.get("user1");
                     if(firebaseAuth.getUid().contains(user1)){
-                        userCardsListener.userCardsSuccess((ArrayList<Long>) task.getResult().get("user1Set"));
+                        ArrayList<Long> data = (ArrayList<Long>) value.get("user1Set");
+                        userCardsListener.userCardsSuccess(data);
                     }
                     else{
-                        userCardsListener.userCardsSuccess((ArrayList<Long>) task.getResult().get("user2Set"));
+                        ArrayList<Long> data = (ArrayList<Long>) value.get("user2Set");
+                        userCardsListener.userCardsSuccess(data);
                     }
                 }
-                else{
-                    userCardsListener.userFailure(task.getException().getMessage());
+                else {
+                    userCardsListener.userFailure(error.getMessage());
                 }
             }
         });
     }
 
+    public static void updateDeckCards(ArrayList<Card> deckList){
+        ArrayList<Integer> list = new ArrayList<>();
+        for(Card card: deckList){
+            list.add(card.getId());
+        }
+        HashMap<String, Object> gameMap = new HashMap<>();
+        gameMap.put("deck", list);
+        firebaseFirestore.collection("unogame").document("game").update(gameMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                }
+                else{
+                }
+            }
+        });
+    }
 
-    public static void getDeckCards(DeckCardsListener deckCardsListener){
+    public static void updateUserCards(ArrayList<Card> userList){
+        ArrayList<Long> dataList = UnoGameHelper.getLongList(userList);
+        firebaseFirestore.collection("unogame").document("game").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    String uid = (String) task.getResult().get("user1");
+                    HashMap<String, Object> gameMap = new HashMap<>();
+                    if(firebaseAuth.getUid().contains(uid)){
+                        gameMap.put("user1Set", dataList);
+                    }
+                    else{
+                        gameMap.put("user2Set", dataList);
+                    }
+                    firebaseFirestore.collection("unogame").document("game").update(gameMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if(task.isSuccessful()){
+                                Log.d("FirebaseHelper", "Success");
+                            }
+                            else{
+                                Log.d("FirebaseHelper", "Failure");
+                            }
+                        }
+                    });
+                }
+                else{
+                    Log.d("FirebaseHelper", "Failure");
+                }
+            }
+        });
+    }
+
+    public static void addDrawFour(ArrayList<Card> userList){
+        ArrayList<Long> dataList = UnoGameHelper.getLongList(userList);
+        firebaseFirestore.collection("unogame").document("game").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    String uid = (String) task.getResult().get("user1");
+                    String path = "";
+                    if(firebaseAuth.getUid().contains(uid)){
+                        path = "user2Set";
+                    }
+                    else{
+                        path = "user1Set";
+                    }
+                    firebaseFirestore.collection("unogame").document("game").update(path, FieldValue.arrayUnion(dataList)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if(task.isSuccessful()){
+                                Log.d("FirebaseHelper", "Success");
+                            }
+                            else{
+                                Log.d("FirebaseHelper", "Failure");
+                            }
+                        }
+                    });
+                }
+                else{
+                    Log.d("FirebaseHelper", "Failure");
+                }
+            }
+        });
+    }
+
+    public static void updateTopCard(Card card, UpdateTopCardListener updateTopCardListener){
+        HashMap<String, Object> gameMap = new HashMap<>();
+        gameMap.put("topCard", card.getId());
+        firebaseFirestore.collection("unogame").document("game").update(gameMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    updateTopCardListener.onTopCardSuccess();
+                }
+                else{
+                    updateTopCardListener.onTopCardFailure(task.getException().getMessage());
+                }
+            }
+        });
+    }
+
+    public static void updateTurn(){
+        HashMap<String, Object> gameMap = new HashMap<>();
         firebaseFirestore.collection("unogame").document("game").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()){
-                    deckCardsListener.deckCardsSuccess((ArrayList<Long>) task.getResult().get("deck"));
+                    String uid = (String) task.getResult().get("turn");
+                    String user = (String) task.getResult().get("user1");
+                    if(firebaseAuth.getUid().contains(uid) && firebaseAuth.getUid().contains(user)){
+                        gameMap.put("turn", (String) task.getResult().get("user2"));
+                    }
+                    else{
+                        gameMap.put("turn", firebaseAuth.getCurrentUser().getUid() );
+                    }
+                    firebaseFirestore.collection("unogame").document("game").update(gameMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task1) {
+                            if(task1.isSuccessful()){
+                                Log.d("FirebaseHelper", "onComplete: ");
+                            }
+                            else{
+                                Log.d("FirebaseHelper", "onComplete: "+ task1.getException().getMessage() );
+                            }
+                        }
+                    });
                 }
                 else{
-                    deckCardsListener.deckFailure(task.getException().getMessage());
+                    Log.d("FirebaseHelper", "onComplete: "+ task.getException().getMessage() );
+                }
+            }
+        });
+
+    }
+
+    public static void getTopCard(TopCardListener topCardListener){
+        firebaseFirestore.collection("unogame").document("game").addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if( error == null && value.contains("topCard")){
+                    Long topCard = (Long) value.get("topCard");
+                    Card card = UnoGameHelper.getCardObject(topCard);
+                    topCardListener.onTopCardSuccess(card);
+                }
+                else if(error != null){
+                    topCardListener.onTopFailure( error.getMessage() );
+                }
+            }
+        });
+    }
+
+    public static void getDeckCards(DeckCardsListener deckCardsListener){
+        firebaseFirestore.collection("unogame").document("game").addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if( error == null && value.contains("deck")){
+                    ArrayList<Long> deckList = (ArrayList<Long>) value.get("deck");
+                    deckCardsListener.deckCardsSuccess(deckList);
+                }
+                else if(error != null){
+                    deckCardsListener.deckFailure( error.getMessage() );
                 }
             }
         });
