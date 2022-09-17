@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class UnoGameHelper {
 
@@ -68,21 +69,21 @@ public class UnoGameHelper {
     static Card draw4 = new Card(47,Color.WHITE,"draw4","Draw 4");
 
 
-    public static HashMap<Integer, Card> getAllCards(){
-        HashMap<Integer,Card> cards= new HashMap<Integer, Card>()
+    public static HashMap<Long, Card> getAllCards(){
+        HashMap<Long,Card> cards= new HashMap<Long, Card>()
         {{
-            put(1,red0);put(12,green0);put(23,yellow0);put(34,blue0);
-            put(2,red1);put(13,green1);put(24,yellow1);put(35,blue1);
-            put(3,red2);put(14,green2);put(25,yellow2);put(36,blue2);
-            put(4,red3);put(15,green3);put(26,yellow3);put(37,blue3);
-            put(5,red4);put(16,green4);put(27,yellow4);put(38,blue4);
-            put(6,red5);put(17,green5);put(28,yellow5);put(39,blue5);
-            put(7,red6);put(18,green6);put(29,yellow6);put(40,blue6);
-            put(8,red7);put(19,green7);put(30,yellow7);put(41,blue7);
-            put(9,red8);put(20,green8);put(31,yellow8);put(42,blue8);
-            put(10,red9);put(21,green9);put(32,yellow9);put(43,blue9);
-            put(11,redSkip);put(22,greenSkip);put(33,yellowSkip);put(44,blueSkip);
-            put(45,draw1);put(46,draw2);put(47,draw3);put(48,draw4);
+            put(1L,red0);put(12L,green0);put(23L,yellow0);put(34L,blue0);
+            put(2L,red1);put(13L,green1);put(24L,yellow1);put(35L,blue1);
+            put(3L,red2);put(14L,green2);put(25L,yellow2);put(36L,blue2);
+            put(4L,red3);put(15L,green3);put(26L,yellow3);put(37L,blue3);
+            put(5L,red4);put(16L,green4);put(27L,yellow4);put(38L,blue4);
+            put(6L,red5);put(17L,green5);put(28L,yellow5);put(39L,blue5);
+            put(7L,red6);put(18L,green6);put(29L,yellow6);put(40L,blue6);
+            put(8L,red7);put(19L,green7);put(30L,yellow7);put(41L,blue7);
+            put(9L,red8);put(20L,green8);put(31L,yellow8);put(42L,blue8);
+            put(10L,red9);put(21L,green9);put(32L,yellow9);put(43L,blue9);
+            put(11L,redSkip);put(22L,greenSkip);put(33L,yellowSkip);put(44L,blueSkip);
+            put(45L,draw1);put(46L,draw2);put(47L,draw3);put(48L,draw4);
         }};
         return cards;
     }
@@ -115,12 +116,13 @@ public class UnoGameHelper {
     }
 
 
-    public static HashSet<Integer> getUsersCards(){
+    public static HashSet<Long> getUsersCards(){
         Random random = new Random();
         int cnt = 0;
-        HashSet<Integer> set = new HashSet<>();
+        HashSet<Long> set = new HashSet<>();
         while(cnt < 14){
-            int number = random.nextInt(49 );
+            long number = ThreadLocalRandom.current().nextLong(49);
+//            int number = random.nextLong(49f );
             if(number != 0 && !set.contains(number)){
                 set.add(number);
                 cnt++;
@@ -129,9 +131,10 @@ public class UnoGameHelper {
         return  set;
     }
 
-    public static ArrayList<Integer> getDeck(HashSet<Integer> userSet){
-        ArrayList<Integer> deck = new ArrayList<>();
-        for( Map.Entry<Integer,Card> mapElement :getAllCards().entrySet()){
+    public static ArrayList<Long> getDeck(HashSet<Long> userSet){
+//        getAllCards()
+        ArrayList<Long> deck = new ArrayList<>();
+        for( Map.Entry<Long,Card> mapElement :getAllCards().entrySet()){
             if(!userSet.contains(mapElement.getKey())){
                 deck.add(mapElement.getKey());
             }
@@ -139,9 +142,9 @@ public class UnoGameHelper {
         return deck;
     }
 
-    public static ArrayList<Card> getCardDetailsList(ArrayList<Integer> cardIntegerList){
+    public static ArrayList<Card> getCardDetailsList(ArrayList<Long> cardIntegerList){
         ArrayList<Card> cardArrayList = new ArrayList<>();
-        for(Integer num : cardIntegerList){
+        for(Long num : cardIntegerList){
             cardArrayList.add(getAllCards().get(num));
         }
         return cardArrayList;

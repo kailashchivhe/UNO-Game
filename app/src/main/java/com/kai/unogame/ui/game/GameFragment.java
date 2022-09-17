@@ -194,7 +194,7 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     }
 
     @Override
-    public void userCardsSuccess(ArrayList<Integer> list) {
+    public void userCardsSuccess(ArrayList<Long> list) {
         userCardList = getCardDetailsList(list);
         playerCardsAdapter = new PlayerCardsAdapter(userCardList,this);
         binding.recyclerViewMyCards.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
@@ -207,7 +207,7 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     }
 
     @Override
-    public void deckCardsSuccess(ArrayList<Integer> list) {
+    public void deckCardsSuccess(ArrayList<Long> list) {
         deckCardList = getCardDetailsList(list);
         Card card = deckCardList.remove(0);
     }

@@ -210,14 +210,14 @@ public class FirebaseHelper {
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
                     //getCards and update
-                    HashSet<Integer> userSet = UnoGameHelper.getUsersCards();
-                    ArrayList<Integer> deckList = UnoGameHelper.getDeck( userSet );
+                    HashSet<Long> userSet = UnoGameHelper.getUsersCards();
+                    ArrayList<Long> deckList = UnoGameHelper.getDeck( userSet );
                     HashMap<String, Object> gameMap = new HashMap<>();
                     gameMap.put("deck", deckList);
-                    ArrayList<Integer> user1List = new ArrayList<>();
-                    ArrayList<Integer> user2List = new ArrayList<>();
+                    ArrayList<Long> user1List = new ArrayList<>();
+                    ArrayList<Long> user2List = new ArrayList<>();
                     int cnt = 0;
-                    for(Integer data: userSet){
+                    for(Long data: userSet){
                         if( cnt < 7){
                             user1List.add(data);
                         }
@@ -274,10 +274,10 @@ public class FirebaseHelper {
                 if(task.isSuccessful()){
                     String user1 = (String) task.getResult().get("user1");
                     if(firebaseAuth.getUid().contains(user1)){
-                        userCardsListener.userCardsSuccess((ArrayList<Integer>) task.getResult().get("user1Set"));
+                        userCardsListener.userCardsSuccess((ArrayList<Long>) task.getResult().get("user1Set"));
                     }
                     else{
-                        userCardsListener.userCardsSuccess((ArrayList<Integer>) task.getResult().get("user2Set"));
+                        userCardsListener.userCardsSuccess((ArrayList<Long>) task.getResult().get("user2Set"));
                     }
                 }
                 else{
@@ -293,7 +293,7 @@ public class FirebaseHelper {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()){
-                    deckCardsListener.deckCardsSuccess((ArrayList<Integer>) task.getResult().get("deck"));
+                    deckCardsListener.deckCardsSuccess((ArrayList<Long>) task.getResult().get("deck"));
                 }
                 else{
                     deckCardsListener.deckFailure(task.getException().getMessage());

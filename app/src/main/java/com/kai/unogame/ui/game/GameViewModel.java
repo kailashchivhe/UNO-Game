@@ -57,7 +57,7 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
     }
 
     @Override
-    public void deckCardsSuccess(ArrayList<Integer> list) {
+    public void deckCardsSuccess(ArrayList<Long> list) {
         ArrayList<Card> cardArrayList = UnoGameHelper.getCardDetailsList( list );
         deckLiveData.postValue(cardArrayList);
     }
@@ -68,7 +68,7 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
     }
 
     @Override
-    public void userCardsSuccess(ArrayList<Integer> list) {
+    public void userCardsSuccess(ArrayList<Long> list) {
         ArrayList<Card> cardArrayList = UnoGameHelper.getCardDetailsList( list );
         userCardLiveData.postValue(cardArrayList);
     }
