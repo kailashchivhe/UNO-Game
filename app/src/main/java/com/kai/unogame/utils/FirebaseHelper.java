@@ -405,11 +405,12 @@ public class FirebaseHelper {
                 if(task.isSuccessful()){
                     String uid = (String) task.getResult().get("turn");
                     String user = (String) task.getResult().get("user1");
-                    if(firebaseAuth.getUid().contains(uid) && firebaseAuth.getUid().contains(user)){
-                        gameMap.put("turn", (String) task.getResult().get("user2"));
+                    String user2 = (String) task.getResult().get("user2");
+                    if(uid.contains(user)){
+                        gameMap.put("turn", user2);
                     }
                     else{
-                        gameMap.put("turn", firebaseAuth.getCurrentUser().getUid() );
+                        gameMap.put("turn", user);
                     }
                     firebaseFirestore.collection("unogame").document("game").update(gameMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override

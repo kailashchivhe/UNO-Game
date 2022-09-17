@@ -39,8 +39,6 @@ public class PlayerCardsAdapter extends RecyclerView.Adapter<PlayerCardHolder> {
         holder.name.setText(card.getValue());
         holder.cardView.setCardBackgroundColor(card.getColor());
         holder.name.setTextColor(Color.WHITE);
-//        holder.view.setBackground
-//        holder.view.setBackgroundColor(card.getColor());
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

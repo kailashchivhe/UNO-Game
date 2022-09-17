@@ -94,8 +94,14 @@ public class UnoGameHelper {
                 cardCheckedListener.cardSkipSuccessful(playedCard);
             }
             else{
-                //Card can not be played
-                cardCheckedListener.cardCheckedFailure("You can not play this card");
+                if(playedCard.getValue().equals(topDeck.getValue())){
+                    cardCheckedListener.cardSkipSuccessful(playedCard);
+                }
+                else{
+                    //Card can not be played
+                    cardCheckedListener.cardCheckedFailure("You can not play this card");
+                }
+
             }
         }
         else if(playedCard.getType().equals("num")){
@@ -104,8 +110,13 @@ public class UnoGameHelper {
                 cardCheckedListener.cardNumSuccessful(playedCard);
             }
             else{
-                //Card can not be played
-                cardCheckedListener.cardCheckedFailure("You can not play this card");
+                if(playedCard.getValue().equals(topDeck.getValue())){
+                    cardCheckedListener.cardNumSuccessful(playedCard);
+                }
+                else{
+                    //Card can not be played
+                    cardCheckedListener.cardCheckedFailure("You can not play this card");
+                }
             }
         }
         else{

@@ -182,6 +182,9 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     public void cardNumSuccessful(Card newTopCard) {
         gameViewModel.updateTopCard(newTopCard);
         userCardList.remove(newTopCard);
+//        topCard = newTopCard;
+//        initTopCard();
+//        gameViewModel.updateTopCard(newTopCard);
         if(userCardList.isEmpty()){
             showAlert("Winner");
         }
@@ -194,21 +197,39 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     @Override
     public void cardSkipSuccessful(Card newTopCard) {
         //set newTopCard
+//        topCard = newTopCard;
+//        initTopCard();
+
         gameViewModel.updateTopCard(newTopCard);
         userCardList.remove(newTopCard);
-        gameViewModel.updateUserCards(userCardList);
+        if(userCardList.isEmpty()){
+            showAlert("Winner");
+        }
+        else {
+            gameViewModel.updateUserCards(userCardList);
+//            gameViewModel.updateTurn();
+        }
+//        gameViewModel.updateUserCards(userCardList);
     }
 
     @Override
     public void cardDraw4Successful(Card newTopCard) {
         //set newTopCard
-        topCard = newTopCard;
-        initTopCard();
+//        topCard = newTopCard;
+//        initTopCard();
         //ask user to select colour
+        //change color of top card
+        gameViewModel.updateTopCard(newTopCard);
         //add 4 cards to other user
         userCardList.remove(newTopCard);
-        playerCardsAdapter.notifyDataSetChanged();
-        //change turn
+        if(userCardList.isEmpty()){
+            showAlert("Winner");
+        }
+        else {
+            gameViewModel.updateUserCards(userCardList);
+            //change turn
+            gameViewModel.updateTurn();
+        }
     }
 
     @Override
