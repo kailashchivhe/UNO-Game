@@ -12,9 +12,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -25,17 +29,12 @@ import com.kai.unogame.databinding.FragmentGameBinding;
 import com.kai.unogame.databinding.ItemCardBinding;
 import com.kai.unogame.listener.CardCheckedListener;
 import com.kai.unogame.listener.CardClickedListener;
-import com.kai.unogame.listener.DeckCardsListener;
-import com.kai.unogame.listener.UserCardsListener;
 import com.kai.unogame.model.Card;
-import com.kai.unogame.model.Game;
 import com.kai.unogame.utils.FirebaseHelper;
 import com.kai.unogame.utils.UnoGameHelper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+
 
 public class GameFragment extends Fragment implements CardClickedListener, CardCheckedListener {
 
@@ -51,19 +50,10 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
         // Required empty public constructor
     }
 
-    public static GameFragment newInstance(String param1, String param2) {
-        GameFragment fragment = new GameFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-
-        }
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -71,6 +61,22 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
                              Bundle savedInstanceState) {
         binding = FragmentGameBinding.inflate(inflater,container,false);
         return binding.getRoot();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_game,menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_exit) {
+            navigateToHome();
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -142,12 +148,27 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
                 onDrawCardClicked();
             }
         });
+        binding.passTurn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                binding.drawCard.setEnabled(true);
+                binding.passTurn.setEnabled(false);
+                gameViewModel.updateTurn();
+            }
+        });
     }
 
     void onDrawCardClicked(){
-        userCardList.add(deckCardList.remove(0));
-        gameViewModel.updateUserCards(userCardList);
-        gameViewModel.updateDeck(deckCardList);
+        if(FirebaseHelper.getUser().getUid().contains(turnId)) {
+            binding.passTurn.setEnabled(true);
+            binding.drawCard.setEnabled(false);
+            userCardList.add(deckCardList.remove(0));
+            gameViewModel.updateUserCards(userCardList);
+            gameViewModel.updateDeck(deckCardList);
+        }
+        else{
+            showAlert("Not your turn");
+        }
     }
 
     private void showAlert(String message) {
@@ -157,7 +178,9 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
         builder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-
+                if(message.contains("Winner")){
+                    navigateToHome();
+                }
             }
         });
         builder.show();
@@ -180,11 +203,9 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
 
     @Override
     public void cardNumSuccessful(Card newTopCard) {
+        binding.drawCard.setEnabled(true);
         gameViewModel.updateTopCard(newTopCard);
         userCardList.remove(newTopCard);
-//        topCard = newTopCard;
-//        initTopCard();
-//        gameViewModel.updateTopCard(newTopCard);
         if(userCardList.isEmpty()){
             showAlert("Winner");
         }
@@ -196,10 +217,7 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
 
     @Override
     public void cardSkipSuccessful(Card newTopCard) {
-        //set newTopCard
-//        topCard = newTopCard;
-//        initTopCard();
-
+        binding.drawCard.setEnabled(true);
         gameViewModel.updateTopCard(newTopCard);
         userCardList.remove(newTopCard);
         if(userCardList.isEmpty()){
@@ -207,18 +225,14 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
         }
         else {
             gameViewModel.updateUserCards(userCardList);
-//            gameViewModel.updateTurn();
         }
-//        gameViewModel.updateUserCards(userCardList);
     }
 
     @Override
     public void cardDraw4Successful(Card newTopCard) {
-        //set newTopCard
-//        topCard = newTopCard;
-//        initTopCard();
         //ask user to select colour
         //change color of top card
+        binding.drawCard.setEnabled(true);
         gameViewModel.updateTopCard(newTopCard);
         //add 4 cards to other user
         userCardList.remove(newTopCard);
@@ -227,7 +241,6 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
         }
         else {
             gameViewModel.updateUserCards(userCardList);
-            //change turn
             gameViewModel.updateTurn();
         }
     }
@@ -235,5 +248,9 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     @Override
     public void cardCheckedFailure(String message) {
         showAlert(message);
+    }
+
+    public void navigateToHome(){
+        NavHostFragment.findNavController( this ).popBackStack();
     }
 }
