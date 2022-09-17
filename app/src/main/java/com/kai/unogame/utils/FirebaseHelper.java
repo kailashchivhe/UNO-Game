@@ -23,10 +23,13 @@ import com.kai.unogame.listener.ProfileListener;
 import com.kai.unogame.listener.ProfileRetrieveListener;
 import com.kai.unogame.listener.RegistrationListener;
 import com.kai.unogame.listener.StartGameListener;
+import com.kai.unogame.listener.TurnListener;
 import com.kai.unogame.model.Game;
 import com.kai.unogame.model.User;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class FirebaseHelper {
 
@@ -149,16 +152,15 @@ public class FirebaseHelper {
         map.put("status", false);
         map.put("createdStatus", true);
         map.put("user1", firebaseAuth.getCurrentUser().getUid() );
+        map.put("turn", firebaseAuth.getCurrentUser().getUid() );
         map.put("name", "UNO Game");
         firebaseFirestore.collection("unogame").document("game").set(map).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
-//                    gameRequestListener.success();
                     createGameListener.gameCreatedSuccessfully();
                 }
                 else{
-//                    gameRequestListener.failure(task.getException().getMessage());
                     createGameListener.gameCreationFailure(task.getException().getMessage());
                 }
             }
@@ -183,6 +185,21 @@ public class FirebaseHelper {
         });
     }
 
+    public static void getTurnStatus(TurnListener turnListener){
+        firebaseFirestore.collection("unogame").document("game").addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if( error == null && value.get("turn") != null){
+                    String uid = (String) value.get("turn");
+                    turnListener.onTurnSuccess(uid);
+                }
+                else if(error != null){
+                    turnListener.onTurnFailure(error.getMessage());
+                }
+            }
+        });
+    }
+
     public static void joinGame(JoinGameListener joinGameListener){
         HashMap<String, Object> map = new HashMap<>();
         map.put("status", true);
@@ -192,7 +209,36 @@ public class FirebaseHelper {
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
                     //getCards and update
-                    joinGameListener.gamedJoined();
+                    HashSet<Integer> userSet = UnoGameHelper.getUsersCards();
+                    HashSet<Integer> deckSet = UnoGameHelper.getDeck( userSet );
+                    HashMap<String, Object> gameMap = new HashMap<>();
+                    gameMap.put("deck", deckSet);
+                    ArrayList<Integer> user1List = new ArrayList<>();
+                    ArrayList<Integer> user2List = new ArrayList<>();
+                    int cnt = 0;
+                    for(Integer data: userSet){
+                        if( cnt < 7){
+                            user1List.add(data);
+                        }
+                        else{
+                            user2List.add(data);
+                        }
+                        cnt++;
+                    }
+                    gameMap.put("user1Set", user1List);
+                    gameMap.put("user2Set", user2List);
+
+                    firebaseFirestore.collection("unogame").document("game").update(gameMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if(task.isSuccessful()){
+                                joinGameListener.gamedJoined();
+                            }
+                            else{
+                                joinGameListener.gamedJoinedFailure(task.getException().getMessage());
+                            }
+                        }
+                    });
                 }
                 else{
                     joinGameListener.gamedJoinedFailure(task.getException().getMessage());

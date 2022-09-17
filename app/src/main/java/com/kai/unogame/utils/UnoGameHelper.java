@@ -6,9 +6,11 @@ import com.kai.unogame.listener.CardCheckedListener;
 import com.kai.unogame.listener.CardClickedListener;
 import com.kai.unogame.model.Card;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Random;
 
 public class UnoGameHelper {
 
@@ -117,5 +119,30 @@ public class UnoGameHelper {
             //change turn
         }
         return true;
+    }
+
+
+    public static HashSet<Integer> getUsersCards(){
+        Random random = new Random();
+        int cnt = 0;
+        HashSet<Integer> set = new HashSet<>();
+        while(cnt < 15){
+            int number = random.nextInt(49 );
+            if(number != 0 && !set.contains(number)){
+                set.add(number);
+                cnt++;
+            }
+        }
+        return  set;
+    }
+
+    public static HashSet<Integer> getDeck(HashSet<Integer> userSet){
+        HashSet<Integer> deck = new HashSet<>();
+        for( Map.Entry<Integer,Card> mapElement :getAllCards().entrySet()){
+            if(!userSet.contains(mapElement.getKey())){
+                deck.add(mapElement.getKey());
+            }
+        }
+        return deck;
     }
 }
