@@ -76,7 +76,7 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        gameViewModel = new ViewModelProvider(requireActivity()).get(GameViewModel.class);
+        gameViewModel = new ViewModelProvider(this).get(GameViewModel.class);
         gameViewModel.initTurnStatus();
         gameViewModel.getDeckCards();
         gameViewModel.getUserCards();

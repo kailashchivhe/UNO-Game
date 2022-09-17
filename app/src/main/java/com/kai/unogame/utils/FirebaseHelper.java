@@ -204,7 +204,6 @@ public class FirebaseHelper {
 
     public static void joinGame(JoinGameListener joinGameListener){
         HashMap<String, Object> map = new HashMap<>();
-        map.put("status", true);
         map.put("user2", firebaseAuth.getCurrentUser().getUid() );
         firebaseFirestore.collection("unogame").document("game").update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -229,6 +228,7 @@ public class FirebaseHelper {
                     }
                     gameMap.put("user1Set", user1List);
                     gameMap.put("user2Set", user2List);
+                    gameMap.put("status", true);
 
                     firebaseFirestore.collection("unogame").document("game").update(gameMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
@@ -273,7 +273,6 @@ public class FirebaseHelper {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()){
                     String user1 = (String) task.getResult().get("user1");
-                    String user2 = (String) task.getResult().get("user2");
                     if(firebaseAuth.getUid().contains(user1)){
                         userCardsListener.userCardsSuccess((ArrayList<Integer>) task.getResult().get("user1Set"));
                     }
