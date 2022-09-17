@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-public class GameFragment extends Fragment implements CardClickedListener, CardCheckedListener, UserCardsListener, DeckCardsListener {
+public class GameFragment extends Fragment implements CardClickedListener, CardCheckedListener {
 
     FragmentGameBinding binding;
     PlayerCardsAdapter playerCardsAdapter;
@@ -78,6 +78,9 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
         super.onViewCreated(view, savedInstanceState);
         gameViewModel = new ViewModelProvider(this).get(GameViewModel.class);
         gameViewModel.initTurnStatus();
+        playerCardsAdapter = new PlayerCardsAdapter(userCardList,this);
+        binding.recyclerViewMyCards.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
+        binding.recyclerViewMyCards.setAdapter(playerCardsAdapter);
         gameViewModel.getDeckCards();
         gameViewModel.getUserCards();
         gameViewModel.getTurnLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
@@ -95,6 +98,7 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
             }
         });
 
+
         gameViewModel.getDeckLiveData().observe(getViewLifecycleOwner(), new Observer<ArrayList<Card>>() {
             @Override
             public void onChanged(ArrayList<Card> cards) {
@@ -110,6 +114,7 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
             public void onChanged(ArrayList<Card> cards) {
                 userCardList.clear();
                 userCardList.addAll(cards);
+                playerCardsAdapter.notifyDataSetChanged();
             }
         });
     }
@@ -117,7 +122,7 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     private void initTopCard() {
         ItemCardBinding itemCardBinding = binding.deckCard;
         itemCardBinding.textViewCardName.setText(topCard.getValue());
-//        itemCardBinding.setBackground(topCard.getColor());
+        itemCardBinding.cardView.setCardBackgroundColor(topCard.getColor());
     }
 
     @Override
@@ -165,15 +170,20 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
 
     @Override
     public void cardNumSuccesfull(Card newTopCard) {
+        topCard = newTopCard;
+        initTopCard();
         //set newTopCard
         userCardList.remove(newTopCard);
         playerCardsAdapter.notifyDataSetChanged();
         //change turn
+
     }
 
     @Override
     public void cardSkipSuccesfull(Card newTopCard) {
         //set newTopCard
+        topCard = newTopCard;
+        initTopCard();
         userCardList.remove(newTopCard);
         playerCardsAdapter.notifyDataSetChanged();
     }
@@ -181,6 +191,8 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     @Override
     public void cardDraw4Succesfull(Card newTopCard) {
         //set newTopCard
+        topCard = newTopCard;
+        initTopCard();
         //ask user to select colour
         //add 4 cards to other user
         userCardList.remove(newTopCard);
@@ -193,27 +205,27 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
         showAlert(message);
     }
 
-    @Override
-    public void userCardsSuccess(ArrayList<Long> list) {
-        userCardList = getCardDetailsList(list);
-        playerCardsAdapter = new PlayerCardsAdapter(userCardList,this);
-        binding.recyclerViewMyCards.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
-        binding.recyclerViewMyCards.setAdapter(playerCardsAdapter);
-    }
-
-    @Override
-    public void userFailure(String message) {
-        showAlert(message);
-    }
-
-    @Override
-    public void deckCardsSuccess(ArrayList<Long> list) {
-        deckCardList = getCardDetailsList(list);
-        Card card = deckCardList.remove(0);
-    }
-
-    @Override
-    public void deckFailure(String message) {
-        showAlert(message);
-    }
+//    @Override
+//    public void userCardsSuccess(ArrayList<Long> list) {
+//        userCardList = getCardDetailsList(list);
+//        playerCardsAdapter = new PlayerCardsAdapter(userCardList,this);
+//        binding.recyclerViewMyCards.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
+//        binding.recyclerViewMyCards.setAdapter(playerCardsAdapter);
+//    }
+//
+//    @Override
+//    public void userFailure(String message) {
+//        showAlert(message);
+//    }
+//
+//    @Override
+//    public void deckCardsSuccess(ArrayList<Long> list) {
+//        deckCardList = getCardDetailsList(list);
+//        Card card = deckCardList.remove(0);
+//    }
+//
+//    @Override
+//    public void deckFailure(String message) {
+//        showAlert(message);
+//    }
 }

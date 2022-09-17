@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kai.unogame.R;
@@ -36,7 +37,9 @@ public class PlayerCardsAdapter extends RecyclerView.Adapter<PlayerCardHolder> {
     public void onBindViewHolder(@NonNull PlayerCardHolder holder, int position) {
         Card card = cardList.get(position);
         holder.name.setText(card.getValue());
-        holder.name.setTextColor(card.getColor());
+        holder.cardView.setCardBackgroundColor(card.getColor());
+        holder.name.setTextColor(Color.WHITE);
+//        holder.view.setBackground
 //        holder.view.setBackgroundColor(card.getColor());
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,9 +62,11 @@ class PlayerCardHolder extends RecyclerView.ViewHolder{
 
     TextView name;
     View view;
+    CardView cardView;
     public PlayerCardHolder(@NonNull View itemView) {
         super(itemView);
         name = itemView.findViewById(R.id.textViewCardName);
         view  = itemView;
+        cardView = itemView.findViewById(R.id.cardView);
     }
 }

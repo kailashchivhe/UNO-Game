@@ -63,10 +63,10 @@ public class UnoGameHelper {
     static Card blue9 = new Card(43,Color.BLUE,"num","9");
     static Card blueSkip = new Card(44,Color.BLUE,"skip","Skip");
 
-    static Card draw1 = new Card(45,Color.WHITE,"draw4","Draw 4");
-    static Card draw2 = new Card(45,Color.WHITE,"draw4","Draw 4");
-    static Card draw3 = new Card(46,Color.WHITE,"draw4","Draw 4");
-    static Card draw4 = new Card(47,Color.WHITE,"draw4","Draw 4");
+    static Card draw1 = new Card(45,Color.BLACK,"draw4","Draw 4");
+    static Card draw2 = new Card(45,Color.BLACK,"draw4","Draw 4");
+    static Card draw3 = new Card(46,Color.BLACK,"draw4","Draw 4");
+    static Card draw4 = new Card(47,Color.BLACK,"draw4","Draw 4");
 
 
     public static HashMap<Long, Card> getAllCards(){
