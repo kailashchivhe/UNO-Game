@@ -2,11 +2,13 @@ package com.kai.unogame.ui.game;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -69,6 +71,22 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         gameViewModel = new ViewModelProvider(requireActivity()).get(GameViewModel.class);
+        gameViewModel.initTurnStatus();
+
+        gameViewModel.getTurnLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String uid) {
+                turnId = uid;
+                if(FirebaseHelper.getUser().getUid().contains(uid)){
+                    binding.currentPlayerText.setText("Your Turn");
+                    binding.currentPlayerText.setTextColor(Color.GREEN);
+                }
+                else{
+                    binding.currentPlayerText.setText("Opposition Turn");
+                    binding.currentPlayerText.setTextColor(Color.RED);
+                }
+            }
+        });
     }
 
     @Override
