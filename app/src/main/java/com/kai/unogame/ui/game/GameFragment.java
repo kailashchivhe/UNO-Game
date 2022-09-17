@@ -73,7 +73,7 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_exit) {
-            navigateToHome();
+            gameViewModel.exitGame();
             return true;
         }
         return false;
@@ -129,6 +129,18 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
                 userCardList.clear();
                 userCardList.addAll(cards);
                 playerCardsAdapter.notifyDataSetChanged();
+            }
+        });
+
+        gameViewModel.getGameExitLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if(aBoolean){
+                    navigateToHome();
+                }
+                else{
+                    showAlert("Could not exit game!");
+                }
             }
         });
     }
@@ -280,5 +292,11 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
 
     public void navigateToHome(){
         NavHostFragment.findNavController( this ).popBackStack();
+    }
+
+    @Override
+    public void onDestroy() {
+        gameViewModel.exitGame();
+        super.onDestroy();
     }
 }

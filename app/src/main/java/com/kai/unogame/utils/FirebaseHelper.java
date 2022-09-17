@@ -20,6 +20,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.kai.unogame.listener.CreateGameListener;
 import com.kai.unogame.listener.CreateStatusListener;
 import com.kai.unogame.listener.DeckCardsListener;
+import com.kai.unogame.listener.GameExitListener;
 import com.kai.unogame.listener.GameRequestListener;
 import com.kai.unogame.listener.JoinGameListener;
 import com.kai.unogame.listener.LoginListener;
@@ -463,4 +464,17 @@ public class FirebaseHelper {
         });
     }
 
+    public static void clearGame(GameExitListener gameExitListener){
+        firebaseFirestore.collection("unogame").document("game").delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    gameExitListener.onGameExitSuccess();
+                }
+                else{
+                    gameExitListener.onGameExitFailure(task.getException().getMessage());
+                }
+            }
+        });
+    }
 }
