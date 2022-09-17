@@ -145,4 +145,12 @@ public class UnoGameHelper {
         }
         return deck;
     }
+
+    public static ArrayList<Card> getCardDetailsList(ArrayList<Integer> cardIntegerList){
+        ArrayList<Card> cardArrayList = new ArrayList<>();
+        for(Integer num : cardIntegerList){
+            cardArrayList.add(getAllCards().get(num));
+        }
+        return cardArrayList;
+    }
 }

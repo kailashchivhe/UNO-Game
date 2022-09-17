@@ -24,6 +24,7 @@ import com.kai.unogame.listener.ProfileRetrieveListener;
 import com.kai.unogame.listener.RegistrationListener;
 import com.kai.unogame.listener.StartGameListener;
 import com.kai.unogame.listener.TurnListener;
+import com.kai.unogame.listener.UserCardsListener;
 import com.kai.unogame.model.Game;
 import com.kai.unogame.model.User;
 
@@ -260,6 +261,27 @@ public class FirebaseHelper {
                 }
                 else if(error != null){
                     startGameListener.gameStartedFailure( error.getMessage() );
+                }
+            }
+        });
+    }
+
+    public static void getUserCards(UserCardsListener userCardsListener){
+        firebaseFirestore.collection("unogame").document("game").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    String user1 = (String) task.getResult().get("user1");
+                    String user2 = (String) task.getResult().get("user2");
+                    if(firebaseAuth.getUid().contains(user1)){
+                        userCardsListener.userCardsSuccess((ArrayList<Integer>) task.getResult().get("user1Set"));
+                    }
+                    else{
+                        userCardsListener.userCardsSuccess((ArrayList<Integer>) task.getResult().get("user2Set"));
+                    }
+                }
+                else{
+                    userCardsListener.userFailure(task.getException().getMessage());
                 }
             }
         });

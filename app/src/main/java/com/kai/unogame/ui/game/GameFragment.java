@@ -37,8 +37,8 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     List<Card> cardList = new ArrayList<>();
     Card topCard;
     GameViewModel gameViewModel;
-    Game game;
-    AlertDialog.Builder builder;
+    String turnId;
+
     public GameFragment() {
         // Required empty public constructor
     }
@@ -74,14 +74,7 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Alert!");
-        builder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
-        });
+        showAlert("");
         HashMap<Integer, Card> hashSet =  UnoGameHelper.getAllCards();
         cardList.add(hashSet.get(1));
         cardList.add(hashSet.get(11));
@@ -96,23 +89,36 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
         binding.recyclerViewMyCards.setAdapter(playerCardsAdapter);
     }
 
+    private void showAlert(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Alert!");
+        builder.setMessage(message);
+        builder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        builder.show();
+    }
+
     @Override
     public void cardClickedSuccessfully(Card card) {
-        if(game.getTurnID().equals(FirebaseHelper.getUser().getUid())){
+        if(turnId.equals(FirebaseHelper.getUser().getUid())){
             UnoGameHelper.checkCard(topCard,card,this);
         }
         else{
-            builder.setMessage("Not your turn");
-            AlertDialog alertDialog = builder.create();
-            alertDialog.show();
+//            builder.setMessage("Not your turn");
+//            AlertDialog alertDialog = builder.create();
+//            alertDialog.show();
         }
     }
 
     @Override
     public void cardClickedFailure(String message) {
-        builder.setMessage(message);
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
+//        builder.setMessage(message);
+//        AlertDialog alertDialog = builder.create();
+//        alertDialog.show();
     }
 
     @Override
@@ -122,8 +128,10 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
 
     @Override
     public void cardCheckedFailure(String message) {
-        builder.setMessage(message);
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
+//        builder.setMessage(message);
+//        AlertDialog alertDialog = builder.create();
+//        alertDialog.show();
     }
+
+
 }
