@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.kai.unogame.R;
 import com.kai.unogame.adapter.PlayerCardsAdapter;
 import com.kai.unogame.databinding.FragmentGameBinding;
+import com.kai.unogame.databinding.ItemCardBinding;
 import com.kai.unogame.listener.CardCheckedListener;
 import com.kai.unogame.listener.CardClickedListener;
 import com.kai.unogame.listener.DeckCardsListener;
@@ -92,13 +93,37 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
                 }
             }
         });
+
+        gameViewModel.getDeckLiveData().observe(getViewLifecycleOwner(), new Observer<ArrayList<Card>>() {
+            @Override
+            public void onChanged(ArrayList<Card> cards) {
+                deckCardList.clear();
+                topCard =cards.remove(0);
+                deckCardList.addAll(cards);
+                initTopCard();
+            }
+        });
+
+        gameViewModel.getUserCardLiveData().observe(getViewLifecycleOwner(), new Observer<ArrayList<Card>>() {
+            @Override
+            public void onChanged(ArrayList<Card> cards) {
+                userCardList.clear();
+                userCardList.addAll(cards);
+            }
+        });
+    }
+
+    private void initTopCard() {
+        ItemCardBinding itemCardBinding = binding.deckCard;
+        itemCardBinding.textViewCardName.setText(topCard.getValue());
+//        itemCardBinding.setBackground(topCard.getColor());
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        FirebaseHelper.getUserCards(this);
-        FirebaseHelper.getDeckCards(this);
+        gameViewModel.getDeckCards();
+        gameViewModel.getUserCards();
         binding.drawCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

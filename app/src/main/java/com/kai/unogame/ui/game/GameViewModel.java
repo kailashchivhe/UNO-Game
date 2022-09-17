@@ -75,4 +75,12 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
     public void userFailure(String message) {
         Log.e("Error", message );
     }
+
+    public MutableLiveData<ArrayList<Card>> getDeckLiveData() {
+        return deckLiveData;
+    }
+
+    public MutableLiveData<ArrayList<Card>> getUserCardLiveData() {
+        return userCardLiveData;
+    }
 }
