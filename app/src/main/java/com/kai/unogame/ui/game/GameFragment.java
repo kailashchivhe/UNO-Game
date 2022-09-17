@@ -78,7 +78,8 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
         super.onViewCreated(view, savedInstanceState);
         gameViewModel = new ViewModelProvider(requireActivity()).get(GameViewModel.class);
         gameViewModel.initTurnStatus();
-
+        gameViewModel.getDeckCards();
+        gameViewModel.getUserCards();
         gameViewModel.getTurnLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String uid) {
@@ -122,8 +123,6 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        gameViewModel.getDeckCards();
-        gameViewModel.getUserCards();
         binding.drawCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
