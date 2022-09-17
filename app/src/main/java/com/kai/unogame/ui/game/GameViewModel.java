@@ -26,6 +26,8 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
     public GameViewModel(@NonNull Application application) {
         super(application);
         turnLiveData = new MutableLiveData<>();
+        deckLiveData = new MutableLiveData<>();
+        userCardLiveData = new MutableLiveData<>();
     }
 
     public void initTurnStatus(){
