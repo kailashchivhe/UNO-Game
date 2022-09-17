@@ -87,13 +87,11 @@ public class UnoGameHelper {
         return cards;
     }
 
-    public static Boolean checkCard(Card topDeck, Card playedCard, CardCheckedListener cardCheckedListener){
+    public static void checkCard(Card topDeck, Card playedCard, CardCheckedListener cardCheckedListener){
         if(playedCard.getType().equals("skip")){
             if(topDeck.getColor() == playedCard.getColor()){
                 //same colour skip
-                //card can be played
-                //change top card
-                //do not change turn
+                cardCheckedListener.cardSkipSuccesfull(playedCard);
             }
             else{
                 //Card can not be played
@@ -103,9 +101,7 @@ public class UnoGameHelper {
         else if(playedCard.getType().equals("num")){
             if(playedCard.getColor() == topDeck.getColor()){
                 //same colour
-                //card can be played
-                //change top card
-                //change turn
+                cardCheckedListener.cardNumSuccesfull(playedCard);
             }
             else{
                 //Card can not be played
@@ -114,11 +110,8 @@ public class UnoGameHelper {
         }
         else{
             //draw 4
-            //select 1 colour from green, blue, yellow, red
-            //add 4 cards to other player
-            //change turn
+            cardCheckedListener.cardDraw4Succesfull(playedCard);
         }
-        return true;
     }
 
 

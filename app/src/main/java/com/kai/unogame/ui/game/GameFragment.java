@@ -1,5 +1,7 @@
 package com.kai.unogame.ui.game;
 
+import static com.kai.unogame.utils.UnoGameHelper.getCardDetailsList;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
@@ -22,6 +24,8 @@ import com.kai.unogame.adapter.PlayerCardsAdapter;
 import com.kai.unogame.databinding.FragmentGameBinding;
 import com.kai.unogame.listener.CardCheckedListener;
 import com.kai.unogame.listener.CardClickedListener;
+import com.kai.unogame.listener.DeckCardsListener;
+import com.kai.unogame.listener.UserCardsListener;
 import com.kai.unogame.model.Card;
 import com.kai.unogame.model.Game;
 import com.kai.unogame.utils.FirebaseHelper;
@@ -32,11 +36,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-public class GameFragment extends Fragment implements CardClickedListener, CardCheckedListener {
+public class GameFragment extends Fragment implements CardClickedListener, CardCheckedListener, UserCardsListener, DeckCardsListener {
 
     FragmentGameBinding binding;
     PlayerCardsAdapter playerCardsAdapter;
-    List<Card> cardList = new ArrayList<>();
+    List<Card> userCardList = new ArrayList<>();
+    List<Card> deckCardList = new ArrayList<>();
     Card topCard;
     GameViewModel gameViewModel;
     String turnId;
@@ -92,21 +97,20 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        showAlert("");
-        HashMap<Integer, Card> hashSet =  UnoGameHelper.getAllCards();
-        cardList.add(hashSet.get(1));
-        cardList.add(hashSet.get(11));
-        cardList.add(hashSet.get(45));
-        cardList.add(hashSet.get(33));
-        cardList.add(hashSet.get(23));
-        cardList.add(hashSet.get(37));
-
-
-        playerCardsAdapter = new PlayerCardsAdapter(cardList,this);
-        binding.recyclerViewMyCards.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
-        binding.recyclerViewMyCards.setAdapter(playerCardsAdapter);
+        FirebaseHelper.getUserCards(this);
+        FirebaseHelper.getDeckCards(this);
+        binding.drawCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onDrawCardClicked();
+            }
+        });
     }
 
+    void onDrawCardClicked(){
+        userCardList.add(deckCardList.remove(0));
+        playerCardsAdapter.notifyDataSetChanged();
+    }
     private void showAlert(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Alert!");
@@ -126,30 +130,66 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
             UnoGameHelper.checkCard(topCard,card,this);
         }
         else{
-//            builder.setMessage("Not your turn");
-//            AlertDialog alertDialog = builder.create();
-//            alertDialog.show();
+            showAlert("Not your turn");
         }
     }
 
     @Override
     public void cardClickedFailure(String message) {
-//        builder.setMessage(message);
-//        AlertDialog alertDialog = builder.create();
-//        alertDialog.show();
+        showAlert(message);
     }
 
     @Override
-    public void cardCheckedSuccesfull() {
+    public void cardNumSuccesfull(Card newTopCard) {
+        //set newTopCard
+        userCardList.remove(newTopCard);
+        playerCardsAdapter.notifyDataSetChanged();
+        //change turn
+    }
 
+    @Override
+    public void cardSkipSuccesfull(Card newTopCard) {
+        //set newTopCard
+        userCardList.remove(newTopCard);
+        playerCardsAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void cardDraw4Succesfull(Card newTopCard) {
+        //set newTopCard
+        //ask user to select colour
+        //add 4 cards to other user
+        userCardList.remove(newTopCard);
+        playerCardsAdapter.notifyDataSetChanged();
+        //change turn
     }
 
     @Override
     public void cardCheckedFailure(String message) {
-//        builder.setMessage(message);
-//        AlertDialog alertDialog = builder.create();
-//        alertDialog.show();
+        showAlert(message);
     }
 
+    @Override
+    public void userCardsSuccess(ArrayList<Integer> list) {
+        userCardList = getCardDetailsList(list);
+        playerCardsAdapter = new PlayerCardsAdapter(userCardList,this);
+        binding.recyclerViewMyCards.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
+        binding.recyclerViewMyCards.setAdapter(playerCardsAdapter);
+    }
 
+    @Override
+    public void userFailure(String message) {
+        showAlert(message);
+    }
+
+    @Override
+    public void deckCardsSuccess(ArrayList<Integer> list) {
+        deckCardList = getCardDetailsList(list);
+        Card card = deckCardList.remove(0);
+    }
+
+    @Override
+    public void deckFailure(String message) {
+        showAlert(message);
+    }
 }
