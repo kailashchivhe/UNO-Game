@@ -231,10 +231,38 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     @Override
     public void cardDraw4Successful(Card newTopCard) {
         //ask user to select colour
-        //change color of top card
+        final String[] colors = {"Red","Green","Blue","Yellow"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Select color to proceed");
+        builder.setSingleChoiceItems(colors, 0, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch(which){
+                    //change color of top card
+                    case 0:
+                        newTopCard.setColor(Color.RED);
+                        break;
+                    case 1:
+                        newTopCard.setColor(Color.GREEN);
+                        break;
+                    case 2:
+                        newTopCard.setColor(Color.BLUE);
+                        break;
+                    default:
+                        newTopCard.setColor(Color.YELLOW);
+                }
+            }
+        });
         binding.drawCard.setEnabled(true);
         gameViewModel.updateTopCard(newTopCard);
         //add 4 cards to other user
+
         userCardList.remove(newTopCard);
         if(userCardList.isEmpty()){
             showAlert("Winner");
