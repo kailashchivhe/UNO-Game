@@ -90,6 +90,7 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
         gameViewModel.getDeckCards();
         gameViewModel.getUserCards();
         gameViewModel.getTopCard();
+        gameViewModel.initExitStatusListener();
 
         gameViewModel.getTopCardLiveData().observe(getViewLifecycleOwner(), new Observer<Card>() {
             @Override
@@ -143,6 +144,15 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
                 }
             }
         });
+
+        gameViewModel.getExitStatusLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if(aBoolean){
+                    showAlert("Your opponent exited the game.");
+                }
+            }
+        });
     }
 
     private void initTopCard() {
@@ -190,7 +200,7 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
         builder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if(message.contains("Winner")){
+                if(message.contains("Winner") || message.contains("Your opponent exited the game.")){
                     navigateToHome();
                 }
             }

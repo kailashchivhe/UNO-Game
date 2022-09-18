@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.kai.unogame.listener.CardClickedListener;
 import com.kai.unogame.listener.DeckCardsListener;
+import com.kai.unogame.listener.ExitGameListener;
 import com.kai.unogame.listener.GameExitListener;
 import com.kai.unogame.listener.TopCardListener;
 import com.kai.unogame.listener.TurnListener;
@@ -20,13 +21,14 @@ import com.kai.unogame.utils.UnoGameHelper;
 
 import java.util.ArrayList;
 
-public class GameViewModel extends AndroidViewModel implements TurnListener, DeckCardsListener, UserCardsListener, TopCardListener, UpdateTopCardListener, GameExitListener {
+public class GameViewModel extends AndroidViewModel implements TurnListener, DeckCardsListener, UserCardsListener, TopCardListener, UpdateTopCardListener, GameExitListener, ExitGameListener {
 
     MutableLiveData<String> turnLiveData;
     MutableLiveData<ArrayList<Card>> deckLiveData;
     MutableLiveData<ArrayList<Card>> userCardLiveData;
     MutableLiveData<Card> topCardLiveData;
     MutableLiveData<Boolean> gameExitLiveData;
+    MutableLiveData<Boolean> exitStatusLiveData;
 
     public GameViewModel(@NonNull Application application) {
         super(application);
@@ -35,6 +37,7 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
         userCardLiveData = new MutableLiveData<>();
         topCardLiveData = new MutableLiveData<>();
         gameExitLiveData = new MutableLiveData<>();
+        exitStatusLiveData = new MutableLiveData<>();
     }
 
     public void initTurnStatus() {
@@ -51,6 +54,10 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
 
     public void getUserCards() {
         FirebaseHelper.getUserCards(this);
+    }
+
+    public void initExitStatusListener(){
+        FirebaseHelper.exitGameListener(this);
     }
 
     public void getTopCard() {
@@ -158,5 +165,19 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
 
     public MutableLiveData<Boolean> getGameExitLiveData() {
         return gameExitLiveData;
+    }
+
+    public MutableLiveData<Boolean> getExitStatusLiveData() {
+        return exitStatusLiveData;
+    }
+
+    @Override
+    public void onExitSuccess() {
+        exitStatusLiveData.postValue(true);
+    }
+
+    @Override
+    public void onExitFailure(String message) {
+        Log.d("FirebaseHelper", "onExitFailure: ");
     }
 }

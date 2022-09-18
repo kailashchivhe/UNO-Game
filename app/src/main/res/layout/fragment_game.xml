@@ -32,7 +32,7 @@
     <Button
         android:id="@+id/drawCard"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:text="Draw Card"
         app:layout_constraintBottom_toTopOf="@+id/passTurn"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -43,7 +43,7 @@
     <Button
         android:id="@+id/passTurn"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:text="Pass Turn"
         android:enabled="false"
         app:layout_constraintBottom_toTopOf="@+id/recyclerViewMyCards"
