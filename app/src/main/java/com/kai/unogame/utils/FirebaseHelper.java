@@ -368,18 +368,21 @@ public class FirebaseHelper {
                     else{
                         path = "user1Set";
                     }
-                    gameMap.put(path, FieldValue.arrayUnion(dataList) );
-                    firebaseFirestore.collection("unogame").document("game").update(gameMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if(task.isSuccessful()){
-                                Log.d("FirebaseHelper", "Success");
+                    ArrayList<Long> userList = (ArrayList<Long>) task.getResult().get(path);
+                    if(userList != null){
+                        userList.addAll(dataList);
+                        gameMap.put(path, userList);
+                        firebaseFirestore.collection("unogame").document("game").update(gameMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Log.d("FirebaseHelper", "Success");
+                                } else {
+                                    Log.d("FirebaseHelper", "Failure");
+                                }
                             }
-                            else{
-                                Log.d("FirebaseHelper", "Failure");
-                            }
-                        }
-                    });
+                        });
+                    }
                 }
                 else{
                     Log.d("FirebaseHelper", "Failure");
