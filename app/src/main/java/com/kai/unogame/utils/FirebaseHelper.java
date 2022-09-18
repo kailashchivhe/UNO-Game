@@ -31,6 +31,7 @@ import com.kai.unogame.listener.RegistrationListener;
 import com.kai.unogame.listener.StartGameListener;
 import com.kai.unogame.listener.TopCardListener;
 import com.kai.unogame.listener.TurnListener;
+import com.kai.unogame.listener.UpdateExitStatusListener;
 import com.kai.unogame.listener.UpdateTopCardListener;
 import com.kai.unogame.listener.UserCardsListener;
 import com.kai.unogame.model.Card;
@@ -239,6 +240,7 @@ public class FirebaseHelper {
                     gameMap.put("user1Set", user1List);
                     gameMap.put("user2Set", user2List);
                     gameMap.put("status", true);
+                    gameMap.put("exitStatus", false );
 
                     firebaseFirestore.collection("unogame").document("game").update(gameMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
@@ -468,15 +470,31 @@ public class FirebaseHelper {
         });
     }
 
-    public static void clearGame(GameExitListener gameExitListener){
+    public static void clearGame(){
         firebaseFirestore.collection("unogame").document("game").delete().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
-                    gameExitListener.onGameExitSuccess();
+                    Log.d("FirebaseHelper", "onComplete: ");
                 }
                 else{
-                    gameExitListener.onGameExitFailure(task.getException().getMessage());
+                    Log.d( "FirebaseHelper", "onComplete: "+ task.getException().getMessage());
+                }
+            }
+        });
+    }
+
+    public static void updateExitStatus(UpdateExitStatusListener updateExitStatusListener){
+        HashMap<String, Object> gameMap = new HashMap<>();
+        gameMap.put("exitStatus", true);
+        firebaseFirestore.collection("unogame").document("game").update(gameMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    updateExitStatusListener.onExitStatusChanged();
+                }
+                else{
+                    updateExitStatusListener.onExitFailure(task.getException().getMessage());
                 }
             }
         });
@@ -486,10 +504,13 @@ public class FirebaseHelper {
         firebaseFirestore.collection("unogame").document("game").addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if(error == null && value == null && !value.exists()){
-                    exitGameListener.onExitSuccess();
+                if( error == null && value != null && value.contains("exitStatus")){
+                    Boolean exitStatus = (Boolean) value.get("exitStatus");
+                    if(exitStatus){
+                        exitGameListener.onExitSuccess();
+                    }
                 }
-                else{
+                else if(error != null){
                     exitGameListener.onExitFailure( error.getMessage() );
                 }
             }

@@ -13,6 +13,7 @@ import com.kai.unogame.listener.ExitGameListener;
 import com.kai.unogame.listener.GameExitListener;
 import com.kai.unogame.listener.TopCardListener;
 import com.kai.unogame.listener.TurnListener;
+import com.kai.unogame.listener.UpdateExitStatusListener;
 import com.kai.unogame.listener.UpdateTopCardListener;
 import com.kai.unogame.listener.UserCardsListener;
 import com.kai.unogame.model.Card;
@@ -21,7 +22,7 @@ import com.kai.unogame.utils.UnoGameHelper;
 
 import java.util.ArrayList;
 
-public class GameViewModel extends AndroidViewModel implements TurnListener, DeckCardsListener, UserCardsListener, TopCardListener, UpdateTopCardListener, GameExitListener, ExitGameListener {
+public class GameViewModel extends AndroidViewModel implements TurnListener, DeckCardsListener, UserCardsListener, TopCardListener, UpdateTopCardListener, GameExitListener, ExitGameListener, UpdateExitStatusListener {
 
     MutableLiveData<String> turnLiveData;
     MutableLiveData<ArrayList<Card>> deckLiveData;
@@ -131,8 +132,7 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
     }
 
     public void exitGame() {
-        FirebaseHelper.clearGame(this);
-
+        FirebaseHelper.updateExitStatus( this );
     }
 
     public void updateTopCard(Card card) {
@@ -174,6 +174,12 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
     @Override
     public void onExitSuccess() {
         exitStatusLiveData.postValue(true);
+    }
+
+    @Override
+    public void onExitStatusChanged() {
+        exitStatusLiveData.postValue(true);
+        FirebaseHelper.clearGame();
     }
 
     @Override
