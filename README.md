@@ -27,7 +27,7 @@
         </td>
         <td>
           <h4>Home Menu</h4>
-          <img src="https://github.com/kailashchivhe/UNO-Game/blob/a1f8ba898d7bae76951ebd8f69708ad8a0d276f4/screenshots/Profile.png" height=500 width=250/>
+          <img src="https://github.com/kailashchivhe/UNO-Game/blob/b87f1bf5cfc955f2cdd77605133266e23ebf4e17/screenshots/Menu.png" height=500 width=250/>
         </td>
     </tr>
   </table>
