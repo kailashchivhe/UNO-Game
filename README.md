@@ -18,7 +18,7 @@
     </tr>
     <tr>
         <td>
-          <h4>ChatRoom</h4>
+          <h4>Game</h4>
           <img src="https://github.com/kailashchivhe/UNO-Game/blob/a1f8ba898d7bae76951ebd8f69708ad8a0d276f4/screenshots/Game.png" height=500 width=250/>
         </td>
         <td>
