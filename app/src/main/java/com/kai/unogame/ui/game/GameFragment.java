@@ -200,8 +200,11 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
 
     @Override
     public void cardClickedSuccessfully(Card card) {
+
         if(turnId.equals(FirebaseHelper.getUser().getUid())){
+            binding.passTurn.setEnabled(false);
             UnoGameHelper.checkCard(topCard,card,this);
+
         }
         else{
             showAlert("Not your turn");
@@ -220,6 +223,7 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
         userCardList.remove(newTopCard);
         if(userCardList.isEmpty()){
             showAlert("Winner");
+            gameViewModel.exitGame();
         }
         else {
             gameViewModel.updateUserCards(userCardList);
@@ -234,6 +238,7 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
         userCardList.remove(newTopCard);
         if(userCardList.isEmpty()){
             showAlert("Winner");
+            gameViewModel.exitGame();
         }
         else {
             gameViewModel.updateUserCards(userCardList);
@@ -242,46 +247,25 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
 
     @Override
     public void cardDraw4Successful(Card newTopCard) {
-        //ask user to select colour
-        final String[] colors = {"Red","Green","Blue","Yellow"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Select color to proceed");
-        builder.setSingleChoiceItems(colors, 0, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-            }
-        });
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch(which){
-                    //change color of top card
-                    case 0:
-                        newTopCard.setColor(Color.RED);
-                        break;
-                    case 1:
-                        newTopCard.setColor(Color.GREEN);
-                        break;
-                    case 2:
-                        newTopCard.setColor(Color.BLUE);
-                        break;
-                    default:
-                        newTopCard.setColor(Color.YELLOW);
-                }
-            }
-        });
         binding.drawCard.setEnabled(true);
         gameViewModel.updateTopCard(newTopCard);
-        //add 4 cards to other user
 
+        //add 4 cards to other user
+        ArrayList<Card> cardsToAdd = new ArrayList<>();
+        cardsToAdd.add(deckCardList.remove(0));
+        cardsToAdd.add(deckCardList.remove(0));
+        cardsToAdd.add(deckCardList.remove(0));
+        cardsToAdd.add(deckCardList.remove(0));
+
+        gameViewModel.addDraw4(cardsToAdd);
+        gameViewModel.updateDeck(deckCardList);
         userCardList.remove(newTopCard);
         if(userCardList.isEmpty()){
             showAlert("Winner");
+            gameViewModel.exitGame();
         }
         else {
             gameViewModel.updateUserCards(userCardList);
-            gameViewModel.updateTurn();
         }
     }
 
@@ -291,7 +275,7 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     }
 
     public void navigateToHome(){
-        NavHostFragment.findNavController( this ).popBackStack();
+        NavHostFragment.findNavController( this ).navigate(R.id.action_GameFragment_to_HomeFragment);
     }
 
     @Override

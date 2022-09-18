@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:text="4"
             android:textColor="@color/white"
-            android:textSize="80sp"
+            android:textSize="60sp"
             android:textStyle="bold|italic"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"

@@ -292,7 +292,8 @@ public class FirebaseHelper {
                     }
                 }
                 else {
-                    userCardsListener.userFailure(error.getMessage());
+                    if(error!=null && error.getMessage()!=null)
+                        userCardsListener.userFailure(error.getMessage());
                 }
             }
         });

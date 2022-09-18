@@ -88,7 +88,18 @@ public class UnoGameHelper {
     }
 
     public static void checkCard(Card topDeck, Card playedCard, CardCheckedListener cardCheckedListener){
-        if(playedCard.getType().equals("skip")){
+        if(topDeck.getType().equals("draw4")){
+            if(playedCard.getType().equals("skip")){
+                cardCheckedListener.cardSkipSuccessful(playedCard);
+            }
+            else if(playedCard.getType().equals("num")){
+                cardCheckedListener.cardNumSuccessful(playedCard);
+            }
+            else{
+                cardCheckedListener.cardDraw4Successful(playedCard);
+            }
+        }
+        else if(playedCard.getType().equals("skip")){
             if(topDeck.getColor() == playedCard.getColor()){
                 //same colour skip
                 cardCheckedListener.cardSkipSuccessful(playedCard);
