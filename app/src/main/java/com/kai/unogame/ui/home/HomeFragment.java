@@ -64,6 +64,11 @@ public class HomeFragment extends Fragment{
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Boolean flag = false;
+        if(getArguments()!=null){
+            flag = getArguments().getBoolean("flag");
+        }
+
         homeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
         binding.gameRequestButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,12 +91,12 @@ public class HomeFragment extends Fragment{
                 }
             }
         });
-
         homeViewModel.initStartStatus();
+        Boolean finalFlag = flag;
         homeViewModel.getStartStatusLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                if(aBoolean){
+                if(aBoolean && !finalFlag){
                     navigateToGame();
                 }
             }

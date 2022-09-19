@@ -156,6 +156,7 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
     @Override
     public void onGameExitSuccess() {
         gameExitLiveData.postValue(true);
+
     }
 
     @Override

@@ -45,7 +45,8 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     Card topCard;
     GameViewModel gameViewModel;
     String turnId;
-
+//    AlertDialog.Builder builder;
+    AlertDialog alertDialog;
     public GameFragment() {
         // Required empty public constructor
     }
@@ -137,7 +138,7 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
             @Override
             public void onChanged(Boolean aBoolean) {
                 if(aBoolean){
-                    navigateToHome();
+//                    navigateToHome();
                 }
                 else{
                     showAlert("Could not exit game!");
@@ -194,7 +195,11 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     }
 
     private void showAlert(String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        if(alertDialog!=null && alertDialog.isShowing()){
+            alertDialog.dismiss();
+        }
+        AlertDialog.Builder builder;
+        builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Alert!");
         builder.setMessage(message);
         builder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
@@ -205,7 +210,7 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
                 }
             }
         });
-        builder.show();
+        alertDialog = builder.show();
     }
 
     @Override
@@ -285,7 +290,9 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     }
 
     public void navigateToHome(){
-        NavHostFragment.findNavController( this ).navigate(R.id.action_GameFragment_to_HomeFragment);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable( "flag", true );
+        NavHostFragment.findNavController( this ).navigate(R.id.action_GameFragment_to_HomeFragment,bundle);
     }
 
     @Override
