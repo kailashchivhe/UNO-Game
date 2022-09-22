@@ -28,7 +28,7 @@ public class PlayerCardsAdapter extends RecyclerView.Adapter<PlayerCardHolder> {
     @NonNull
     @Override
     public PlayerCardHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_card,parent,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_card, parent, false);
         PlayerCardHolder holder = new PlayerCardHolder(view);
         return holder;
     }
@@ -52,19 +52,21 @@ public class PlayerCardsAdapter extends RecyclerView.Adapter<PlayerCardHolder> {
         return cardList.size();
     }
 
-    void onCardClicked(Card card){
+    void onCardClicked(Card card) {
         cardClickedListener.cardClickedSuccessfully(card);
     }
 }
-class PlayerCardHolder extends RecyclerView.ViewHolder{
+
+class PlayerCardHolder extends RecyclerView.ViewHolder {
 
     TextView name;
     View view;
     CardView cardView;
+
     public PlayerCardHolder(@NonNull View itemView) {
         super(itemView);
         name = itemView.findViewById(R.id.textViewCardName);
-        view  = itemView;
+        view = itemView;
         cardView = itemView.findViewById(R.id.cardView);
     }
 }
