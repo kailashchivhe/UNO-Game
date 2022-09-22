@@ -52,7 +52,7 @@ public class HomeViewModel extends AndroidViewModel implements CreateGameListene
     }
 
     @Override
-    public void gamedJoined() {
+    public void joinGame(String uid, String gameId) {
         joinStatusLiveData.postValue(true);
     }
 

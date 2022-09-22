@@ -9,7 +9,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,19 +19,30 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.kai.unogame.R;
 import com.kai.unogame.databinding.FragmentHomeBinding;
+import com.kai.unogame.databinding.GameLineItemBinding;
+import com.kai.unogame.model.Game;
 import com.kai.unogame.utils.FirebaseHelper;
+
+import java.util.ArrayList;
 
 public class HomeFragment extends Fragment{
 
     FragmentHomeBinding binding;
     AlertDialog.Builder builder;
     HomeViewModel homeViewModel;
+    private FirebaseAuth mAuth;
+    FirebaseUser user;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mAuth = FirebaseAuth.getInstance();
+        user = mAuth.getCurrentUser();
         setHasOptionsMenu(true);
     }
 
@@ -142,5 +155,56 @@ public class HomeFragment extends Fragment{
 
     private void onProfileClicked(){
         NavHostFragment.findNavController(this).navigate(R.id.action_HomeFragment_to_ProfileFragment);
+    }
+
+    class GamesListAdapter extends RecyclerView.Adapter<GamesListAdapter.GamesViewHolder> {
+        ArrayList<Game> mGames;
+
+        public GamesListAdapter(ArrayList<Game> data) {
+            this.mGames = data;
+        }
+
+        @NonNull
+        @Override
+        public GamesListAdapter.GamesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            GameLineItemBinding binding = GameLineItemBinding.inflate(getLayoutInflater(), parent, false);
+            return new GamesListAdapter.GamesViewHolder(binding);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull GamesListAdapter.GamesViewHolder holder, int position) {
+            Game game = mGames.get(position);
+            holder.setupUI(game);
+        }
+
+        @Override
+        public int getItemCount() {
+            return this.mGames.size();
+        }
+
+        public class GamesViewHolder extends RecyclerView.ViewHolder {
+            GameLineItemBinding mBinding;
+            Game mGame;
+            int position;
+
+            public GamesViewHolder(@NonNull GameLineItemBinding binding) {
+                super(binding.getRoot());
+                mBinding = binding;
+            }
+
+            public void setupUI(Game game) {
+                mGame = game;
+                mBinding.textViewGame.setText(mGame.getGameID());
+
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String gameID = game.getGameID();
+                        String uid = mAuth.getCurrentUser().getUid();
+                        homeViewModel.joinGame(uid, gameID);
+                    }
+                });
+            }
+        }
     }
 }

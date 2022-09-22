@@ -246,7 +246,7 @@ public class FirebaseHelper {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if(task.isSuccessful()){
-                                joinGameListener.gamedJoined();
+                                joinGameListener.joinGame();
                             }
                             else{
                                 joinGameListener.gamedJoinedFailure(task.getException().getMessage());
