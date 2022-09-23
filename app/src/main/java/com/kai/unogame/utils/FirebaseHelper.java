@@ -1,5 +1,6 @@
 package com.kai.unogame.utils;
 
+import android.app.Activity;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -54,6 +55,7 @@ public class FirebaseHelper {
     static FirebaseFirestore firebaseFirestore;
     static FirebaseFirestore db;
     private static FirebaseFunctions mFunctions;
+    private static DocumentReference gameReference;
 
     public static void initFirebase(){
         firebaseAuth = FirebaseAuth.getInstance();
@@ -167,7 +169,7 @@ public class FirebaseHelper {
     }
 
     public static void createGame(CreateGameListener createGameListener){
-        HashMap<String, Object> map = new HashMap<>();
+        /*HashMap<String, Object> map = new HashMap<>();
         map.put("status", false);
         map.put("createdStatus", true);
         map.put("user1", firebaseAuth.getCurrentUser().getUid() );
@@ -183,7 +185,7 @@ public class FirebaseHelper {
                     createGameListener.gameCreationFailure(task.getException().getMessage());
                 }
             }
-        });
+        });*/
 
         //FUNCTION CALL//
         callCreateGame(firebaseAuth.getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<String>() {
@@ -191,6 +193,7 @@ public class FirebaseHelper {
             public void onComplete(@NonNull Task<String> task) {
                 if (task.isSuccessful()) {
                     String gameID = task.getResult();
+                    gameReference = db.collection("unogame").document(gameID);
                     createGameListener.gameCreatedSuccessfully();
                     Log.d("FirebaseHelper createGame", "gameID is: " + gameID);
                 } else {
@@ -259,7 +262,7 @@ public class FirebaseHelper {
     }
 
     public static void joinGame(JoinGameListener joinGameListener){
-        HashMap<String, Object> map = new HashMap<>();
+        /*HashMap<String, Object> map = new HashMap<>();
         map.put("user2", firebaseAuth.getCurrentUser().getUid() );
         firebaseFirestore.collection("unogame").document("game").update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -304,18 +307,45 @@ public class FirebaseHelper {
                     joinGameListener.gamedJoinedFailure(task.getException().getMessage());
                 }
             }
-        });
+        });*/
 
         //FUNCTION CALL//
-        callCreateGame(firebaseAuth.getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<String>() {
+        callJoinGame(firebaseAuth.getCurrentUser().getUid(), gameReference.getId()).addOnCompleteListener(new OnCompleteListener<String>() {
             @Override
             public void onComplete(@NonNull Task<String> task) {
                 if (task.isSuccessful()) {
-                    String gameID = task.getResult();
-                    joinGameListener.joinGame();
-                    Log.d("FirebaseHelper createGame", "gameID is: " + gameID);
+                    //getCards and update
+                    HashSet<Long> userSet = UnoGameHelper.getUsersCards();
+                    ArrayList<Long> deckList = UnoGameHelper.getDeck( userSet );
+                    HashMap<String, Object> gameMap = new HashMap<>();
+                    gameMap.put("topCard", deckList.remove(0));
+                    gameMap.put("deck", deckList);
+                    ArrayList<Long> user1List = new ArrayList<>();
+                    ArrayList<Long> user2List = new ArrayList<>();
+                    int cnt = 0;
+                    for(Long data: userSet){
+                        if( cnt < 7){
+                            user1List.add(data);
+                        }
+                        else{
+                            user2List.add(data);
+                        }
+                        cnt++;
+                    }
+                    gameMap.put("user1Set", user1List);
+                    gameMap.put("user2Set", user2List);
+                    firebaseFirestore.collection("unogame").document("game").update(gameMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if(task.isSuccessful()){
+                                joinGameListener.joinGame();
+                            }
+                            else{
+                                joinGameListener.gamedJoinedFailure(task.getException().getMessage());
+                            }
+                        }
+                    });
                 } else {
-                    //task.getException().printStackTrace();
                     joinGameListener.gamedJoinedFailure(task.getException().getMessage());
 
                     Exception e = task.getException();
@@ -323,9 +353,8 @@ public class FirebaseHelper {
                         FirebaseFunctionsException ffe = (FirebaseFunctionsException) e;
                         FirebaseFunctionsException.Code code = ffe.getCode();
                         Object details = ffe.getDetails();
-                        Log.d("FirebaseHelper createGame", "callCreateGame onComplete error: " + ffe);
+                        Log.d("FirebaseHelper joinGame", "callJoinGame onComplete error: " + ffe);
                     }
-
                 }
             }
         });
@@ -477,7 +506,7 @@ public class FirebaseHelper {
     }
 
     public static void updateTopCard(Card card, UpdateTopCardListener updateTopCardListener){
-        HashMap<String, Object> gameMap = new HashMap<>();
+        /*HashMap<String, Object> gameMap = new HashMap<>();
         gameMap.put("topCard", card.getId());
         firebaseFirestore.collection("unogame").document("game").update(gameMap).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -487,6 +516,27 @@ public class FirebaseHelper {
                 }
                 else{
                     updateTopCardListener.onTopCardFailure(task.getException().getMessage());
+                }
+            }
+        });*/
+
+        //FUNCTION CALL//
+        callPlayCard(gameReference.getId(), card).addOnCompleteListener(new OnCompleteListener<String>() {
+            @Override
+            public void onComplete(@NonNull Task<String> task) {
+                if (task.isSuccessful()) {
+                    updateTopCardListener.onTopCardSuccess();
+                } else {
+                    //task.getException().printStackTrace();
+                    updateTopCardListener.onTopCardFailure(task.getException().getMessage());
+
+                    Exception e = task.getException();
+                    if(e instanceof FirebaseFunctionsException) {
+                        FirebaseFunctionsException ffe = (FirebaseFunctionsException) e;
+                        FirebaseFunctionsException.Code code = ffe.getCode();
+                        Object details = ffe.getDetails();
+                        Log.d("FirebaseHelper playCard", "callPlayCard onComplete error: " + ffe);
+                    }
                 }
             }
         });
@@ -594,7 +644,7 @@ public class FirebaseHelper {
     }
 
     public static void updateExitStatus(UpdateExitStatusListener updateExitStatusListener){
-        HashMap<String, Object> gameMap = new HashMap<>();
+        /*HashMap<String, Object> gameMap = new HashMap<>();
         gameMap.put("exitStatus", true);
         firebaseFirestore.collection("unogame").document("game").update(gameMap).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -606,10 +656,10 @@ public class FirebaseHelper {
                     updateExitStatusListener.onExitFailure(task.getException().getMessage());
                 }
             }
-        });
+        });*/
 
         //FUNCTION CALL//
-        callLeaveGame(gameId).addOnCompleteListener(new OnCompleteListener<String>() {
+        callLeaveGame(gameReference.getId()).addOnCompleteListener(new OnCompleteListener<String>() {
             @Override
             public void onComplete(@NonNull Task<String> task) {
                 if (task.isSuccessful()) {
