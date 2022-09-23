@@ -338,7 +338,7 @@ public class FirebaseHelper {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if(task.isSuccessful()){
-                                joinGameListener.joinGame();
+                                joinGameListener.joinGame(firebaseAuth.getCurrentUser().getUid(), gameReference.getId());
                             }
                             else{
                                 joinGameListener.gamedJoinedFailure(task.getException().getMessage());
@@ -465,6 +465,21 @@ public class FirebaseHelper {
                 }
             }
         });
+    }
+
+    private static Task<String> callDrawCards(String uid) {
+        Map<String, Object> drawData = new HashMap<>();
+        drawData.put("uid", uid);
+
+        return mFunctions.getHttpsCallable("drawCards")
+                .call(drawData)
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                        HashMap<String, Object> result = (HashMap<String, Object>) task.getResult().getData();
+                        return (String) result.get("result");
+                    }
+                });
     }
 
     public static void addDrawFour(ArrayList<Card> userList){
