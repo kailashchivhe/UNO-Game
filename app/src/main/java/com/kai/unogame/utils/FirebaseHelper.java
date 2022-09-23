@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -17,6 +18,9 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.FirebaseFunctionsException;
+import com.google.firebase.functions.HttpsCallableResult;
 import com.kai.unogame.listener.CreateGameListener;
 import com.kai.unogame.listener.CreateStatusListener;
 import com.kai.unogame.listener.DeckCardsListener;
@@ -41,6 +45,7 @@ import com.kai.unogame.model.User;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 
 public class FirebaseHelper {
@@ -48,11 +53,13 @@ public class FirebaseHelper {
     static FirebaseAuth firebaseAuth;
     static FirebaseFirestore firebaseFirestore;
     static FirebaseFirestore db;
+    private static FirebaseFunctions mFunctions;
 
     public static void initFirebase(){
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
         db = FirebaseFirestore.getInstance();
+        mFunctions = FirebaseFunctions.getInstance();
     }
 
     public static FirebaseUser getUser(){
@@ -177,6 +184,45 @@ public class FirebaseHelper {
                 }
             }
         });
+
+        //FUNCTION CALL//
+        callCreateGame(firebaseAuth.getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<String>() {
+            @Override
+            public void onComplete(@NonNull Task<String> task) {
+                if (task.isSuccessful()) {
+                    String gameID = task.getResult();
+                    createGameListener.gameCreatedSuccessfully();
+                    Log.d("FirebaseHelper createGame", "gameID is: " + gameID);
+                } else {
+                    //task.getException().printStackTrace();
+                    createGameListener.gameCreationFailure(task.getException().getMessage());
+
+                    Exception e = task.getException();
+                    if(e instanceof FirebaseFunctionsException) {
+                        FirebaseFunctionsException ffe = (FirebaseFunctionsException) e;
+                        FirebaseFunctionsException.Code code = ffe.getCode();
+                        Object details = ffe.getDetails();
+                        Log.d("FirebaseHelper createGame", "callCreateGame onComplete error: " + ffe);
+                    }
+
+                }
+            }
+        });
+    }
+
+    private static Task<String> callCreateGame(String uid) {
+        Map<String, Object> createData = new HashMap<>();
+        createData.put("uid", uid);
+
+        return mFunctions.getHttpsCallable("createGame")
+                .call(createData)
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                        HashMap<String, Object> result = (HashMap<String, Object>) task.getResult().getData();
+                        return (String) result.get("uid");
+                    }
+                });
     }
 
     public static void getCreatedStatus(CreateStatusListener createStatusListener){
