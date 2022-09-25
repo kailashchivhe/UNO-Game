@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
@@ -23,20 +24,24 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kai.unogame.R;
+import com.kai.unogame.adapter.GameListAdapter;
 import com.kai.unogame.databinding.FragmentHomeBinding;
 import com.kai.unogame.databinding.GameLineItemBinding;
+import com.kai.unogame.listener.GameListClickedListener;
 import com.kai.unogame.model.Game;
 import com.kai.unogame.utils.FirebaseHelper;
 
 import java.util.ArrayList;
 
-public class HomeFragment extends Fragment{
+public class HomeFragment extends Fragment implements GameListClickedListener {
 
     FragmentHomeBinding binding;
     AlertDialog.Builder builder;
     HomeViewModel homeViewModel;
     private FirebaseAuth mAuth;
     FirebaseUser user;
+    GameListAdapter gameListAdapter;
+    ArrayList<Game> gameArrayList = new ArrayList<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,7 +61,11 @@ public class HomeFragment extends Fragment{
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_profile) {
+        if(id == R.id.action_create_game){
+            onCreateGameClicked();
+            return true;
+        }
+        else if (id == R.id.action_profile) {
             onProfileClicked();
             return true;
         }
@@ -66,6 +75,7 @@ public class HomeFragment extends Fragment{
         }
         return false;
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -77,6 +87,11 @@ public class HomeFragment extends Fragment{
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        gameListAdapter = new GameListAdapter(gameArrayList,this);
+        binding.recyclerViewGames.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.recyclerViewGames.setAdapter(gameListAdapter);
+
         Boolean flag = false;
         if(getArguments()!=null){
             flag = getArguments().getBoolean("flag");
@@ -148,6 +163,10 @@ public class HomeFragment extends Fragment{
         super.onActivityCreated(savedInstanceState);
     }
 
+    private void onCreateGameClicked() {
+        //Create new game
+    }
+
     private void onLogoutClicked(){
         FirebaseHelper.logout();
         NavHostFragment.findNavController(this).navigate(R.id.action_HomeFragment_to_LoginFragment);
@@ -157,54 +176,13 @@ public class HomeFragment extends Fragment{
         NavHostFragment.findNavController(this).navigate(R.id.action_HomeFragment_to_ProfileFragment);
     }
 
-    class GamesListAdapter extends RecyclerView.Adapter<GamesListAdapter.GamesViewHolder> {
-        ArrayList<Game> mGames;
+    @Override
+    public void gameListClickedSuccessful(Game game) {
+        //Join game using game.id
+    }
 
-        public GamesListAdapter(ArrayList<Game> data) {
-            this.mGames = data;
-        }
-
-        @NonNull
-        @Override
-        public GamesListAdapter.GamesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            GameLineItemBinding binding = GameLineItemBinding.inflate(getLayoutInflater(), parent, false);
-            return new GamesListAdapter.GamesViewHolder(binding);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull GamesListAdapter.GamesViewHolder holder, int position) {
-            Game game = mGames.get(position);
-            holder.setupUI(game);
-        }
-
-        @Override
-        public int getItemCount() {
-            return this.mGames.size();
-        }
-
-        public class GamesViewHolder extends RecyclerView.ViewHolder {
-            GameLineItemBinding mBinding;
-            Game mGame;
-            int position;
-
-            public GamesViewHolder(@NonNull GameLineItemBinding binding) {
-                super(binding.getRoot());
-                mBinding = binding;
-            }
-
-            public void setupUI(Game game) {
-                mGame = game;
-                mBinding.textViewGame.setText(mGame.getGameID());
-
-                itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        String gameID = game.getGameID();
-                        String uid = mAuth.getCurrentUser().getUid();
-                        homeViewModel.joinGame(uid, gameID);
-                    }
-                });
-            }
-        }
+    @Override
+    public void gameListClickedFailure(String message) {
+        //display message
     }
 }
