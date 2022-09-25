@@ -1,6 +1,7 @@
 package com.kai.unogame.ui.home;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -34,20 +35,16 @@ import com.kai.unogame.utils.FirebaseHelper;
 import java.util.ArrayList;
 
 public class HomeFragment extends Fragment implements GameListClickedListener {
-
+    public static final String TAG = "HomeFragment";
     FragmentHomeBinding binding;
-    AlertDialog.Builder builder;
+    AlertDialog alertDialog;
     HomeViewModel homeViewModel;
-    private FirebaseAuth mAuth;
-    FirebaseUser user;
     GameListAdapter gameListAdapter;
     ArrayList<Game> gameArrayList = new ArrayList<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAuth = FirebaseAuth.getInstance();
-        user = mAuth.getCurrentUser();
         setHasOptionsMenu(true);
     }
 
@@ -92,66 +89,54 @@ public class HomeFragment extends Fragment implements GameListClickedListener {
         binding.recyclerViewGames.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerViewGames.setAdapter(gameListAdapter);
 
-        Boolean flag = false;
-        if(getArguments()!=null){
-            flag = getArguments().getBoolean("flag");
-        }
-
         homeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
-        binding.gameRequestButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                homeViewModel.createGame();
-            }
-        });
 
-        /*
-        binding.gameJoinButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                homeViewModel.joinGame();
-            }
-        });
-        */
+        homeViewModel.getGameList();
 
         homeViewModel.getCreateGameLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
                 if(aBoolean){
-                    binding.gameRequestButton.setEnabled(false);
+                    homeViewModel.initStartStatus();
+                }
+                else{
+                    showAlert("Game not created");
                 }
             }
         });
-        homeViewModel.initStartStatus();
-        Boolean finalFlag = flag;
+
         homeViewModel.getStartStatusLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                if(aBoolean && !finalFlag){
+                if(aBoolean){
                     navigateToGame();
+                }
+                else{
+                    showAlert("Game start failed");
                 }
             }
         });
 
-
-        homeViewModel.getJoinStatusLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-
-            }
-        });
-
-        homeViewModel.initCreateStatus();
-        /*
-        homeViewModel.getCreateGameStatusLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+        homeViewModel.getJoinGameLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
                 if(aBoolean){
-                    binding.gameJoinButton.setEnabled(true);
+                    homeViewModel.initStartStatus();
+                }
+                else{
+                    showAlert("Game joined Failed");
                 }
             }
         });
-         */
+
+        homeViewModel.gameListLiveData.observe(getViewLifecycleOwner(), new Observer<ArrayList<Game>>() {
+            @Override
+            public void onChanged(ArrayList<Game> games) {
+                gameArrayList.clear();
+                gameArrayList.addAll(games);
+                gameListAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private void navigateToGame(){
@@ -165,6 +150,7 @@ public class HomeFragment extends Fragment implements GameListClickedListener {
 
     private void onCreateGameClicked() {
         //Create new game
+        homeViewModel.createGame();
     }
 
     private void onLogoutClicked(){
@@ -179,10 +165,29 @@ public class HomeFragment extends Fragment implements GameListClickedListener {
     @Override
     public void gameListClickedSuccessful(Game game) {
         //Join game using game.id
+        homeViewModel.joinGame(game);
     }
 
     @Override
     public void gameListClickedFailure(String message) {
         //display message
+        Log.d(TAG, "gameListClickedFailure: ");
+    }
+
+    private void showAlert(String message) {
+        if(alertDialog!=null && alertDialog.isShowing()){
+            alertDialog.dismiss();
+        }
+        AlertDialog.Builder builder;
+        builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Alert!");
+        builder.setMessage(message);
+        builder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        alertDialog = builder.show();
     }
 }

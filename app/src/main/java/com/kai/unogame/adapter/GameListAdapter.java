@@ -26,7 +26,7 @@ public class GameListAdapter extends RecyclerView.Adapter<GamesViewHolder> {
     @NonNull
     @Override
     public GamesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_game_request, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.game_line_item, parent, false);
         GamesViewHolder holder = new GamesViewHolder(view);
         return holder;
     }
@@ -34,7 +34,7 @@ public class GameListAdapter extends RecyclerView.Adapter<GamesViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull GamesViewHolder holder, int position) {
         Game game = mGames.get(position);
-        holder.textViewGameNumber.setText(""+position);
+        holder.textViewGameNumber.setText("Game Room : " + (position+1));
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -59,6 +59,6 @@ class GamesViewHolder extends RecyclerView.ViewHolder {
     public GamesViewHolder(@NonNull View itemView) {
         super(itemView);
         view = itemView;
-        textViewGameNumber = itemView.findViewById(R.id.textViewGameNumber);
+        textViewGameNumber = itemView.findViewById(R.id.textViewGame);
     }
 }

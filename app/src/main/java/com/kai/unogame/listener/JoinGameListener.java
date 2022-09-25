@@ -1,6 +1,6 @@
 package com.kai.unogame.listener;
 
 public interface JoinGameListener {
-    void joinGame(String uid, String gameId);
+    void joinGameSuccess();
     void gamedJoinedFailure(String message);
 }

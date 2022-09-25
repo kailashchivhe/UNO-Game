@@ -4,7 +4,7 @@ public class Game {
     String gameID;
     String player1ID;
     String player2ID;
-    String status;
+    Boolean status;
     String turnID;
 
     public String getTurnID() {
@@ -15,10 +15,17 @@ public class Game {
         this.turnID = turnID;
     }
 
-    public Game(String gameID, String player1ID, String status) {
+    public Game(String gameID, String player1ID, Boolean status) {
         this.gameID = gameID;
         this.player1ID = player1ID; 
         this.status = status;
+    }
+
+    public Game(String gameID, String player1ID, Boolean status, String turnID) {
+        this.gameID = gameID;
+        this.player1ID = player1ID;
+        this.status = status;
+        this.turnID = turnID;
     }
 
     public String getGameID() {
@@ -45,11 +52,11 @@ public class Game {
         this.player2ID = player2ID;
     }
 
-    public String getStatus() {
+    public Boolean getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Boolean status) {
         this.status = status;
     }
 }

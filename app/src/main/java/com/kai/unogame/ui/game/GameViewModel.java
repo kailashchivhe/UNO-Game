@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
-import com.kai.unogame.listener.CardClickedListener;
 import com.kai.unogame.listener.DeckCardsListener;
 import com.kai.unogame.listener.ExitGameListener;
 import com.kai.unogame.listener.GameExitListener;
@@ -120,15 +119,15 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
     }
 
     public void updateUserCards(ArrayList<Card> cardArrayList) {
-        FirebaseHelper.updateUserCards(cardArrayList);
+//        FirebaseHelper.updateUserCards(cardArrayList);
     }
 
     public void updateDeck(ArrayList<Card> cardArrayList) {
-        FirebaseHelper.updateDeckCards(cardArrayList);
+//        FirebaseHelper.updateDeckCards(cardArrayList);
     }
 
     public void addDraw4(ArrayList<Card> cardArrayList) {
-        FirebaseHelper.addDrawFour(cardArrayList);
+//        FirebaseHelper.addDrawFour(cardArrayList);
     }
 
     public void exitGame() {
@@ -136,11 +135,11 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
     }
 
     public void updateTopCard(Card card) {
-        FirebaseHelper.updateTopCard(card, this);
+        FirebaseHelper.playCard(card, this);
     }
 
     public void updateTurn() {
-        FirebaseHelper.updateTurn();
+//        FirebaseHelper.updateTurn();
     }
 
     @Override
@@ -180,7 +179,7 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
     @Override
     public void onExitStatusChanged() {
         exitStatusLiveData.postValue(true);
-        FirebaseHelper.clearGame();
+//        FirebaseHelper.clearGame();
     }
 
     @Override

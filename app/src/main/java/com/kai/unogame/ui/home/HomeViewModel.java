@@ -1,44 +1,50 @@
 package com.kai.unogame.ui.home;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
 import com.kai.unogame.listener.CreateGameListener;
-import com.kai.unogame.listener.CreateStatusListener;
+import com.kai.unogame.listener.GameListListener;
 import com.kai.unogame.listener.JoinGameListener;
 import com.kai.unogame.listener.StartGameListener;
+import com.kai.unogame.model.Game;
 import com.kai.unogame.utils.FirebaseHelper;
 
-public class HomeViewModel extends AndroidViewModel implements CreateGameListener, JoinGameListener, CreateStatusListener, StartGameListener {
+import java.util.ArrayList;
+
+public class HomeViewModel extends AndroidViewModel implements CreateGameListener, JoinGameListener, StartGameListener, GameListListener {
+    public static final String TAG = "HomeViewModel";
     MutableLiveData<Boolean> createGameLiveData;
-    MutableLiveData<Boolean> joinStatusLiveData;
-    MutableLiveData<Boolean> createGameStatusLiveData;
+    MutableLiveData<Boolean> joinGameLiveData;
     MutableLiveData<Boolean> startStatusLiveData;
+    MutableLiveData<ArrayList<Game>> gameListLiveData;
 
     public HomeViewModel(@NonNull Application application) {
         super(application);
         createGameLiveData = new MutableLiveData<>();
-        joinStatusLiveData = new MutableLiveData<>();
-        createGameStatusLiveData = new MutableLiveData<>();
+        joinGameLiveData = new MutableLiveData<>();
         startStatusLiveData = new MutableLiveData<>();
+        gameListLiveData = new MutableLiveData<>();
     }
 
     public void createGame(){
         FirebaseHelper.createGame(this);
     }
 
-    public void joinGame(){
-        FirebaseHelper.joinGame( this );
+    public void joinGame(Game game){
+        FirebaseHelper.joinGame( this, game );
     }
 
     public void initStartStatus(){
         FirebaseHelper.gameStartedListener(this);
     }
-    public void initCreateStatus(){
-        FirebaseHelper.getCreatedStatus( this );
+
+    public void getGameList(){
+        FirebaseHelper.getGamesList( this );
     }
 
     @Override
@@ -48,39 +54,25 @@ public class HomeViewModel extends AndroidViewModel implements CreateGameListene
 
     @Override
     public void gameCreationFailure(String message) {
-//        createStatusLiveData.postValue(false);
+        createGameLiveData.postValue(false);
     }
 
     @Override
-    public void joinGame(String uid, String gameId) {
-        joinStatusLiveData.postValue(true);
+    public void joinGameSuccess() {
+        joinGameLiveData.postValue(true);
     }
 
     @Override
     public void gamedJoinedFailure(String message) {
-        joinStatusLiveData.postValue(false);
+        joinGameLiveData.postValue(false);
     }
 
     public MutableLiveData<Boolean> getCreateGameLiveData() {
         return createGameLiveData;
     }
 
-    public MutableLiveData<Boolean> getJoinStatusLiveData() {
-        return joinStatusLiveData;
-    }
-
-    public MutableLiveData<Boolean> getCreateGameStatusLiveData() {
-        return createGameStatusLiveData;
-    }
-
-    @Override
-    public void createStatusSuccessfully() {
-        createGameStatusLiveData.postValue(true);
-    }
-
-    @Override
-    public void createStatusFailure(String message) {
-        createGameStatusLiveData.postValue(false);
+    public MutableLiveData<Boolean> getJoinGameLiveData() {
+        return joinGameLiveData;
     }
 
     @Override
@@ -95,5 +87,19 @@ public class HomeViewModel extends AndroidViewModel implements CreateGameListene
 
     public MutableLiveData<Boolean> getStartStatusLiveData() {
         return startStatusLiveData;
+    }
+
+    public MutableLiveData<ArrayList<Game>> getGameListLiveData() {
+        return gameListLiveData;
+    }
+
+    @Override
+    public void onGameListSuccess(ArrayList<Game> gameArrayList) {
+        gameListLiveData.postValue( gameArrayList );
+    }
+
+    @Override
+    public void onGameListFailure(String message) {
+        Log.d(TAG, "onGameListFailure: ");
     }
 }
