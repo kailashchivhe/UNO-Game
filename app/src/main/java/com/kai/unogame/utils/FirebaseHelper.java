@@ -22,7 +22,6 @@ import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.FirebaseFunctionsException;
 import com.google.firebase.functions.HttpsCallableResult;
 import com.kai.unogame.listener.CreateGameListener;
-import com.kai.unogame.listener.CreateStatusListener;
 import com.kai.unogame.listener.DeckCardsListener;
 import com.kai.unogame.listener.ExitGameListener;
 import com.kai.unogame.listener.GameListListener;
@@ -189,40 +188,23 @@ public class FirebaseHelper {
     }
 
     public static void joinGame(JoinGameListener joinGameListener, Game game){
-        //FUNCTION CALL//
-        callJoinGame(firebaseAuth.getCurrentUser().getUid(), game.getGameID()).addOnCompleteListener(new OnCompleteListener<String>() {
-            @Override
-            public void onComplete(@NonNull Task<String> task) {
-                if (task.isSuccessful()) {
-                    gameId = game.getGameID();
-                    joinGameListener.joinGameSuccess();
-                } else {
-                    joinGameListener.gamedJoinedFailure(task.getException().getMessage());
-
-                    Exception e = task.getException();
-                    if(e instanceof FirebaseFunctionsException) {
-                        FirebaseFunctionsException ffe = (FirebaseFunctionsException) e;
-                        FirebaseFunctionsException.Code code = ffe.getCode();
-                        Object details = ffe.getDetails();
-                        Log.d("FirebaseHelper joinGame", "callJoinGame onComplete error: " + ffe);
-                    }
-                }
-            }
-        });
-    }
-
-    private static Task<String> callJoinGame(String uid, String gameId) {
         Map<String, Object> joinData = new HashMap<>();
-        joinData.put("uid", uid);
-        joinData.put("gameId", gameId);
+        joinData.put("uid", firebaseAuth.getUid());
+        joinData.put("gameId", game.getGameID());
 
-        return mFunctions.getHttpsCallable("joinGame")
+        mFunctions.getHttpsCallable("joinGame")
                 .call(joinData)
                 .continueWith(new Continuation<HttpsCallableResult, String>() {
                     @Override
-                    public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-                        HashMap<String, Object> result = (HashMap<String, Object>) task.getResult().getData();
-                        return (String) result.get("result");
+                    public String then(@NonNull Task<HttpsCallableResult> task) {
+                        if (task.isSuccessful()) {
+                            HashMap<String, Object> result = (HashMap<String, Object>) task.getResult().getData();
+                            gameId = game.getGameID();
+                            joinGameListener.joinGameSuccess();
+                        } else {
+                            joinGameListener.gamedJoinedFailure(task.getException().getMessage());
+                        }
+                        return "";
                     }
                 });
     }
@@ -247,24 +229,6 @@ public class FirebaseHelper {
                 }
                 else{
                     gameListListener.onGameListFailure(task.getException().getMessage());
-                }
-            }
-        });
-    }
-
-    public static void getCreatedStatus(CreateStatusListener createStatusListener){
-        firebaseFirestore.collection("unoGames").document(gameId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if( error == null && value.get("createdStatus") != null){
-                    boolean status = (boolean) value.get("createdStatus");
-                    String userId = (String) value.get("user1");
-                    if(status && !(userId.contains(firebaseAuth.getUid()))){
-                        createStatusListener.createStatusSuccessfully();
-                    }
-                }
-                else if(error != null){
-                    createStatusListener.createStatusFailure(error.getMessage());
                 }
             }
         });
@@ -412,7 +376,7 @@ public class FirebaseHelper {
         });
     }
 
-    public static void updateExitStatus(UpdateExitStatusListener updateExitStatusListener){
+    public static void leaveGame(UpdateExitStatusListener updateExitStatusListener){
         //FUNCTION CALL//
         callLeaveGame(gameId).addOnCompleteListener(new OnCompleteListener<String>() {
             @Override

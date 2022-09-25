@@ -131,7 +131,7 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
     }
 
     public void exitGame() {
-        FirebaseHelper.updateExitStatus( this );
+        FirebaseHelper.leaveGame( this );
     }
 
     public void updateTopCard(Card card) {
