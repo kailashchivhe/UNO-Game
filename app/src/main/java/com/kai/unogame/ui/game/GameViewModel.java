@@ -17,11 +17,10 @@ import com.kai.unogame.listener.UpdateTopCardListener;
 import com.kai.unogame.listener.UserCardsListener;
 import com.kai.unogame.model.Card;
 import com.kai.unogame.utils.FirebaseHelper;
-import com.kai.unogame.utils.UnoGameHelper;
 
 import java.util.ArrayList;
 
-public class GameViewModel extends AndroidViewModel implements TurnListener, DeckCardsListener, UserCardsListener, TopCardListener, UpdateTopCardListener, GameExitListener, ExitGameListener, UpdateExitStatusListener {
+public class GameViewModel extends AndroidViewModel implements TurnListener, DeckCardsListener, UserCardsListener, TopCardListener, GameExitListener {
 
     MutableLiveData<String> turnLiveData;
     MutableLiveData<ArrayList<Card>> deckLiveData;
@@ -57,7 +56,7 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
     }
 
     public void initExitStatusListener(){
-        FirebaseHelper.exitGameListener(this);
+//        FirebaseHelper.exitGameListener(this);
     }
 
     public void getTopCard() {
@@ -75,9 +74,8 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
     }
 
     @Override
-    public void deckCardsSuccess(ArrayList<Long> list) {
-        ArrayList<Card> cardArrayList = UnoGameHelper.getCardDetailsList(list);
-        deckLiveData.postValue(cardArrayList);
+    public void deckCardsSuccess(ArrayList<Card> list) {
+        deckLiveData.postValue(list);
     }
 
     @Override
@@ -86,9 +84,8 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
     }
 
     @Override
-    public void userCardsSuccess(ArrayList<Long> list) {
-        ArrayList<Card> cardArrayList = UnoGameHelper.getCardDetailsList(list);
-        userCardLiveData.postValue(cardArrayList);
+    public void userCardsSuccess(ArrayList<Card> list) {
+        userCardLiveData.postValue(list);
     }
 
     @Override
@@ -118,38 +115,8 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
         return topCardLiveData;
     }
 
-    public void updateUserCards(ArrayList<Card> cardArrayList) {
-//        FirebaseHelper.updateUserCards(cardArrayList);
-    }
-
-    public void updateDeck(ArrayList<Card> cardArrayList) {
-//        FirebaseHelper.updateDeckCards(cardArrayList);
-    }
-
-    public void addDraw4(ArrayList<Card> cardArrayList) {
-//        FirebaseHelper.addDrawFour(cardArrayList);
-    }
-
     public void exitGame() {
-        FirebaseHelper.leaveGame( this );
-    }
-
-    public void updateTopCard(Card card) {
-        FirebaseHelper.playCard(card, this);
-    }
-
-    public void updateTurn() {
-//        FirebaseHelper.updateTurn();
-    }
-
-    @Override
-    public void onTopCardSuccess() {
-        Log.d("GameViewModel", "onTopCardSuccess: ");
-    }
-
-    @Override
-    public void onTopCardFailure(String message) {
-        Log.d("GameViewModel", "onTopCardFailure: ");
+//        FirebaseHelper.leaveGame( this );
     }
 
     @Override
@@ -171,19 +138,18 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
         return exitStatusLiveData;
     }
 
-    @Override
-    public void onExitSuccess() {
-        exitStatusLiveData.postValue(true);
-    }
-
-    @Override
-    public void onExitStatusChanged() {
-        exitStatusLiveData.postValue(true);
-//        FirebaseHelper.clearGame();
-    }
-
-    @Override
-    public void onExitFailure(String message) {
-        Log.d("FirebaseHelper", "onExitFailure: ");
-    }
+//    @Override
+//    public void onExitSuccess() {
+//        exitStatusLiveData.postValue(true);
+//    }
+//
+//    @Override
+//    public void onExitStatusChanged() {
+//        exitStatusLiveData.postValue(true);
+//    }
+//
+//    @Override
+//    public void onExitFailure(String message) {
+//        Log.d("FirebaseHelper", "onExitFailure: ");
+//    }
 }

@@ -37,7 +37,7 @@ public class PlayerCardsAdapter extends RecyclerView.Adapter<PlayerCardHolder> {
     public void onBindViewHolder(@NonNull PlayerCardHolder holder, int position) {
         Card card = cardList.get(position);
         holder.name.setText(card.getValue());
-        holder.cardView.setCardBackgroundColor(card.getColor());
+        holder.cardView.setCardBackgroundColor(getCardColor(card.getColor()));
         holder.name.setTextColor(Color.WHITE);
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,13 +47,29 @@ public class PlayerCardsAdapter extends RecyclerView.Adapter<PlayerCardHolder> {
         });
     }
 
+    private int getCardColor(String color) {
+        if(color.contains("red")){
+            return Color.RED;
+        }
+        else if( color.contains("green")){
+            return Color.GREEN;
+        }
+        else if( color.contains("blue")){
+            return Color.BLUE;
+        }
+        else if( color.contains("yellow")){
+            return Color.YELLOW;
+        }
+        return Color.BLACK;
+    }
+
     @Override
     public int getItemCount() {
         return cardList.size();
     }
 
     void onCardClicked(Card card) {
-        cardClickedListener.cardClickedSuccessfully(card);
+        cardClickedListener.onCardClicked(card);
     }
 }
 

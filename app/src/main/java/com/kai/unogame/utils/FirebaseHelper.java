@@ -210,12 +210,12 @@ public class FirebaseHelper {
     }
 
     public static void getGamesList(GameListListener gameListListener){
-        firebaseFirestore.collection("unoGames").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        firebaseFirestore.collection("unoGames").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if(task.isSuccessful()){
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if( error == null ){
                     ArrayList<Game> gameArrayList = new ArrayList<>();
-                    List<DocumentSnapshot> documentSnapshotList = task.getResult().getDocuments();
+                    List<DocumentSnapshot> documentSnapshotList = value.getDocuments();
                     for(DocumentSnapshot documentSnapshot : documentSnapshotList){
                         Game game = new Game((String)documentSnapshot.get("docId"),
                                 (String)documentSnapshot.get("user1Id"),
@@ -227,8 +227,8 @@ public class FirebaseHelper {
                     }
                     gameListListener.onGameListSuccess(gameArrayList);
                 }
-                else{
-                    gameListListener.onGameListFailure(task.getException().getMessage());
+                else if( error != null ){
+                    gameListListener.onGameListFailure(error.getMessage());
                 }
             }
         });
@@ -267,20 +267,89 @@ public class FirebaseHelper {
     }
 
     public static void getUserCards(UserCardsListener userCardsListener){
-        firebaseFirestore.collection("unoGames").document(gameId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        DocumentReference documentReference = firebaseFirestore.collection("unoGames").document(gameId);
+        documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if( error == null && Objects.requireNonNull(value).contains("user1Id")){
-                    String user1 = (String) value.get("user1Id");
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if( task.isSuccessful()){
+                    String user1 = (String) task.getResult().get("user1Id");
+                    String userCollection = "user2";
                     if(firebaseAuth.getUid().contains(user1)){
+                        userCollection = "user1";
                     }
-                    else{
-
-                    }
+                    getSpecificUserCards(userCollection, userCardsListener, documentReference );
                 }
                 else {
-                    if(error!=null && error.getMessage()!=null)
-                        userCardsListener.userFailure(error.getMessage());
+                    userCardsListener.userFailure(task.getException().getMessage());
+                }
+            }
+        });
+    }
+
+    private static void getSpecificUserCards(String user, UserCardsListener userCardsListener, DocumentReference documentReference ){
+        documentReference.collection(user).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if( error == null ){
+                    ArrayList<Card> cardArrayList = new ArrayList<>();
+                    List<DocumentSnapshot> documentSnapshotList = value.getDocuments();
+                    for(DocumentSnapshot documentSnapshot : documentSnapshotList){
+                        Card card = new Card( (int)documentSnapshot.get("id"),
+                                (String)documentSnapshot.get("color"),
+                                (String)documentSnapshot.get("type"),
+                                (String)documentSnapshot.get("value"));
+                        cardArrayList.add(card);
+                    }
+                    userCardsListener.userCardsSuccess(cardArrayList);
+                }
+                else if(error != null){
+                    userCardsListener.userFailure(error.getMessage());
+                }
+            }
+        });
+    }
+
+    public static void getTopCard(TopCardListener topCardListener){
+        firebaseFirestore.collection("unoGames").document(gameId).collection("top").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if( error == null ){
+                    ArrayList<Card> cardArrayList = new ArrayList<>();
+                    List<DocumentSnapshot> documentSnapshotList = value.getDocuments();
+                    for(DocumentSnapshot documentSnapshot : documentSnapshotList){
+                        Card card = new Card( (int)documentSnapshot.get("id"),
+                                (String)documentSnapshot.get("color"),
+                                (String)documentSnapshot.get("type"),
+                                (String)documentSnapshot.get("value"));
+                        cardArrayList.add(card);
+                    }
+                    topCardListener.onTopCardSuccess(cardArrayList.get(0));
+                }
+                else if(error != null){
+                    topCardListener.onTopFailure(error.getMessage());
+                }
+            }
+        });
+    }
+
+    public static void getDeckCards(DeckCardsListener deckCardsListener){
+        firebaseFirestore.collection("unoGames").document(gameId).collection("deck").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if( error == null ){
+                    ArrayList<Card> cardArrayList = new ArrayList<>();
+                    List<DocumentSnapshot> documentSnapshotList = value.getDocuments();
+                    for(DocumentSnapshot documentSnapshot : documentSnapshotList){
+                        Card card = new Card( (int)documentSnapshot.get("id"),
+                                (String)documentSnapshot.get("color"),
+                                (String)documentSnapshot.get("type"),
+                                (String)documentSnapshot.get("value"));
+                        cardArrayList.add(card);
+                    }
+                    deckCardsListener.deckCardsSuccess(cardArrayList);
+                }
+                else if(error != null){
+                    deckCardsListener.deckFailure(error.getMessage());
                 }
             }
         });
@@ -345,72 +414,23 @@ public class FirebaseHelper {
                 });
     }
 
-    public static void getTopCard(TopCardListener topCardListener){
-        firebaseFirestore.collection("unoGames").document(gameId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if( error == null && value.contains("topCard")){
-                    Long topCard = (Long) value.get("topCard");
-                    Card card = UnoGameHelper.getCardObject(topCard);
-                    topCardListener.onTopCardSuccess(card);
-                }
-                else if(error != null){
-                    topCardListener.onTopFailure( error.getMessage() );
-                }
-            }
-        });
-    }
-
-    public static void getDeckCards(DeckCardsListener deckCardsListener){
-        firebaseFirestore.collection("unogame").document("game").addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if( error == null && value.contains("deck")){
-                    ArrayList<Long> deckList = (ArrayList<Long>) value.get("deck");
-                    deckCardsListener.deckCardsSuccess(deckList);
-                }
-                else if(error != null){
-                    deckCardsListener.deckFailure( error.getMessage() );
-                }
-            }
-        });
-    }
-
     public static void leaveGame(UpdateExitStatusListener updateExitStatusListener){
-        //FUNCTION CALL//
-        callLeaveGame(gameId).addOnCompleteListener(new OnCompleteListener<String>() {
-            @Override
-            public void onComplete(@NonNull Task<String> task) {
-                if (task.isSuccessful()) {
-                    updateExitStatusListener.onExitStatusChanged();
-                } else {
-                    //task.getException().printStackTrace();
-                    updateExitStatusListener.onExitFailure(task.getException().getMessage());
+        Map<String, Object> leaveGameData = new HashMap<>();
+        leaveGameData.put("gameId", gameId);
+        leaveGameData.put("uid", firebaseAuth.getUid());
 
-                    Exception e = task.getException();
-                    if(e instanceof FirebaseFunctionsException) {
-                        FirebaseFunctionsException ffe = (FirebaseFunctionsException) e;
-                        FirebaseFunctionsException.Code code = ffe.getCode();
-                        Object details = ffe.getDetails();
-                        Log.d("FirebaseHelper createGame", "callCreateGame onComplete error: " + ffe);
-                    }
-
-                }
-            }
-        });
-    }
-
-    private static Task<String> callLeaveGame(String gameId) {
-        Map<String, Object> joinData = new HashMap<>();
-        joinData.put("gameId", gameId);
-
-        return mFunctions.getHttpsCallable("leaveGame")
-                .call(joinData)
+        mFunctions.getHttpsCallable("leaveGame")
+                .call(leaveGameData)
                 .continueWith(new Continuation<HttpsCallableResult, String>() {
                     @Override
-                    public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-                        HashMap<String, Object> result = (HashMap<String, Object>) task.getResult().getData();
-                        return (String) result.get("result");
+                    public String then(@NonNull Task<HttpsCallableResult> task){
+                        if( task.isSuccessful() ) {
+                            updateExitStatusListener.onExitStatusChanged();
+                        }
+                        else{
+                            updateExitStatusListener.onExitFailure(task.getException().getMessage());
+                        }
+                        return "";
                     }
                 });
     }

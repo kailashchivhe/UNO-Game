@@ -1,7 +1,5 @@
 package com.kai.unogame.ui.game;
 
-import static com.kai.unogame.utils.UnoGameHelper.getCardDetailsList;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
@@ -21,22 +19,19 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.kai.unogame.R;
 import com.kai.unogame.adapter.PlayerCardsAdapter;
 import com.kai.unogame.databinding.FragmentGameBinding;
 import com.kai.unogame.databinding.ItemCardBinding;
-import com.kai.unogame.listener.CardCheckedListener;
 import com.kai.unogame.listener.CardClickedListener;
 import com.kai.unogame.model.Card;
 import com.kai.unogame.utils.FirebaseHelper;
-import com.kai.unogame.utils.UnoGameHelper;
 
 import java.util.ArrayList;
 
 
-public class GameFragment extends Fragment implements CardClickedListener, CardCheckedListener {
+public class GameFragment extends Fragment implements CardClickedListener{
 
     FragmentGameBinding binding;
     PlayerCardsAdapter playerCardsAdapter;
@@ -45,8 +40,8 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     Card topCard;
     GameViewModel gameViewModel;
     String turnId;
-//    AlertDialog.Builder builder;
     AlertDialog alertDialog;
+
     public GameFragment() {
         // Required empty public constructor
     }
@@ -84,10 +79,11 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         gameViewModel = new ViewModelProvider(this).get(GameViewModel.class);
-        gameViewModel.initTurnStatus();
         playerCardsAdapter = new PlayerCardsAdapter(userCardList,this);
         binding.recyclerViewMyCards.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
         binding.recyclerViewMyCards.setAdapter(playerCardsAdapter);
+
+        gameViewModel.initTurnStatus();
         gameViewModel.getDeckCards();
         gameViewModel.getUserCards();
         gameViewModel.getTopCard();
@@ -159,7 +155,23 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     private void initTopCard() {
         ItemCardBinding itemCardBinding = binding.deckCard;
         itemCardBinding.textViewCardName.setText(topCard.getValue());
-        itemCardBinding.cardView.setCardBackgroundColor(topCard.getColor());
+        itemCardBinding.cardView.setCardBackgroundColor(getCardColor(topCard.getColor()));
+    }
+
+    private int getCardColor(String color) {
+        if(color.contains("red")){
+            return Color.RED;
+        }
+        else if( color.contains("green")){
+            return Color.GREEN;
+        }
+        else if( color.contains("blue")){
+            return Color.BLUE;
+        }
+        else if( color.contains("yellow")){
+            return Color.YELLOW;
+        }
+        return Color.BLACK;
     }
 
     @Override
@@ -176,7 +188,6 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
             public void onClick(View view) {
                 binding.drawCard.setEnabled(true);
                 binding.passTurn.setEnabled(false);
-                gameViewModel.updateTurn();
             }
         });
     }
@@ -185,9 +196,10 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
         if(FirebaseHelper.getUser().getUid().contains(turnId)) {
             binding.passTurn.setEnabled(true);
             binding.drawCard.setEnabled(false);
-            userCardList.add(deckCardList.remove(0));
-            gameViewModel.updateUserCards(userCardList);
-            gameViewModel.updateDeck(deckCardList);
+//            userCardList.add(deckCardList.remove(0));
+//            gameViewModel.updateUserCards(userCardList);
+//            gameViewModel.updateDeck(deckCardList);
+            //DrawCardClicked
         }
         else{
             showAlert("Not your turn");
@@ -213,82 +225,6 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
         alertDialog = builder.show();
     }
 
-    @Override
-    public void cardClickedSuccessfully(Card card) {
-
-        if(turnId.equals(FirebaseHelper.getUser().getUid())){
-            binding.passTurn.setEnabled(false);
-            UnoGameHelper.checkCard(topCard,card,this);
-
-        }
-        else{
-            showAlert("Not your turn");
-        }
-    }
-
-    @Override
-    public void cardClickedFailure(String message) {
-        showAlert(message);
-    }
-
-    @Override
-    public void cardNumSuccessful(Card newTopCard) {
-        binding.drawCard.setEnabled(true);
-        gameViewModel.updateTopCard(newTopCard);
-        userCardList.remove(newTopCard);
-        if(userCardList.isEmpty()){
-            showAlert("Winner");
-            gameViewModel.exitGame();
-        }
-        else {
-            gameViewModel.updateUserCards(userCardList);
-            gameViewModel.updateTurn();
-        }
-    }
-
-    @Override
-    public void cardSkipSuccessful(Card newTopCard) {
-        binding.drawCard.setEnabled(true);
-        gameViewModel.updateTopCard(newTopCard);
-        userCardList.remove(newTopCard);
-        if(userCardList.isEmpty()){
-            showAlert("Winner");
-            gameViewModel.exitGame();
-        }
-        else {
-            gameViewModel.updateUserCards(userCardList);
-        }
-    }
-
-    @Override
-    public void cardDraw4Successful(Card newTopCard) {
-        binding.drawCard.setEnabled(true);
-        gameViewModel.updateTopCard(newTopCard);
-
-        //add 4 cards to other user
-        ArrayList<Card> cardsToAdd = new ArrayList<>();
-        cardsToAdd.add(deckCardList.remove(0));
-        cardsToAdd.add(deckCardList.remove(0));
-        cardsToAdd.add(deckCardList.remove(0));
-        cardsToAdd.add(deckCardList.remove(0));
-
-        gameViewModel.addDraw4(cardsToAdd);
-        gameViewModel.updateDeck(deckCardList);
-        userCardList.remove(newTopCard);
-        if(userCardList.isEmpty()){
-            showAlert("Winner");
-            gameViewModel.exitGame();
-        }
-        else {
-            gameViewModel.updateUserCards(userCardList);
-        }
-    }
-
-    @Override
-    public void cardCheckedFailure(String message) {
-        showAlert(message);
-    }
-
     public void navigateToHome(){
         Bundle bundle = new Bundle();
         bundle.putSerializable( "flag", true );
@@ -299,5 +235,10 @@ public class GameFragment extends Fragment implements CardClickedListener, CardC
     public void onDestroy() {
         gameViewModel.exitGame();
         super.onDestroy();
+    }
+
+    @Override
+    public void onCardClicked(Card card) {
+        //Play card clicked
     }
 }
