@@ -217,5 +217,6 @@ public class GameFragment extends Fragment implements CardClickedListener{
     @Override
     public void onCardClicked(Card card) {
         gameViewModel.playCard(card);
+        binding.drawCard.setEnabled(true);
     }
 }
