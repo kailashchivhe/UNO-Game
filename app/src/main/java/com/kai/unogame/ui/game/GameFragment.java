@@ -32,11 +32,9 @@ import java.util.ArrayList;
 
 
 public class GameFragment extends Fragment implements CardClickedListener{
-
     FragmentGameBinding binding;
     PlayerCardsAdapter playerCardsAdapter;
     ArrayList<Card> userCardList = new ArrayList<>();
-    ArrayList<Card> deckCardList = new ArrayList<>();
     Card topCard;
     GameViewModel gameViewModel;
     String turnId;
@@ -112,15 +110,6 @@ public class GameFragment extends Fragment implements CardClickedListener{
             }
         });
 
-
-        gameViewModel.getDeckLiveData().observe(getViewLifecycleOwner(), new Observer<ArrayList<Card>>() {
-            @Override
-            public void onChanged(ArrayList<Card> cards) {
-                deckCardList.clear();
-                deckCardList.addAll(cards);
-            }
-        });
-
         gameViewModel.getUserCardLiveData().observe(getViewLifecycleOwner(), new Observer<ArrayList<Card>>() {
             @Override
             public void onChanged(ArrayList<Card> cards) {
@@ -130,23 +119,14 @@ public class GameFragment extends Fragment implements CardClickedListener{
             }
         });
 
-        gameViewModel.getGameExitLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                if(aBoolean){
-//                    navigateToHome();
-                }
-                else{
-                    showAlert("Could not exit game!");
-                }
-            }
-        });
-
         gameViewModel.getExitStatusLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
                 if(aBoolean){
-                    showAlert("Game exited");
+                    showAlert("Game over");
+                }
+                else{
+                    showAlert("Could not exit game!");
                 }
             }
         });
@@ -196,10 +176,7 @@ public class GameFragment extends Fragment implements CardClickedListener{
         if(FirebaseHelper.getUser().getUid().contains(turnId)) {
             binding.passTurn.setEnabled(true);
             binding.drawCard.setEnabled(false);
-//            userCardList.add(deckCardList.remove(0));
-//            gameViewModel.updateUserCards(userCardList);
-//            gameViewModel.updateDeck(deckCardList);
-            //DrawCardClicked
+            gameViewModel.drawCard();
         }
         else{
             showAlert("Not your turn");
@@ -217,7 +194,7 @@ public class GameFragment extends Fragment implements CardClickedListener{
         builder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if(message.contains("Winner") || message.contains("Game exited")){
+                if(message.contains("Game over")){
                     navigateToHome();
                 }
             }
@@ -239,6 +216,6 @@ public class GameFragment extends Fragment implements CardClickedListener{
 
     @Override
     public void onCardClicked(Card card) {
-        //Play card clicked
+        gameViewModel.playCard(card);
     }
 }

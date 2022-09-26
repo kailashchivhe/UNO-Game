@@ -23,6 +23,7 @@ import com.google.firebase.functions.FirebaseFunctionsException;
 import com.google.firebase.functions.HttpsCallableResult;
 import com.kai.unogame.listener.CreateGameListener;
 import com.kai.unogame.listener.DeckCardsListener;
+import com.kai.unogame.listener.DrawCardListener;
 import com.kai.unogame.listener.ExitGameListener;
 import com.kai.unogame.listener.GameListListener;
 import com.kai.unogame.listener.JoinGameListener;
@@ -34,7 +35,7 @@ import com.kai.unogame.listener.StartGameListener;
 import com.kai.unogame.listener.TopCardListener;
 import com.kai.unogame.listener.TurnListener;
 import com.kai.unogame.listener.UpdateExitStatusListener;
-import com.kai.unogame.listener.UpdateTopCardListener;
+import com.kai.unogame.listener.PlayCardListener;
 import com.kai.unogame.listener.UserCardsListener;
 import com.kai.unogame.model.Card;
 import com.kai.unogame.model.Game;
@@ -44,10 +45,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class FirebaseHelper {
-
+    public static final String TAG = "FirebaseHelper";
     static FirebaseAuth firebaseAuth;
     static FirebaseFirestore firebaseFirestore;
     static FirebaseFirestore db;
@@ -355,9 +355,9 @@ public class FirebaseHelper {
         });
     }
 
-    private static Task<String> callDrawCards(String uid) {
+    public static Task<String> drawCard(DrawCardListener drawCardListener) {
         Map<String, Object> drawData = new HashMap<>();
-        drawData.put("uid", uid);
+        drawData.put("uid", firebaseAuth.getUid());
 
         return mFunctions.getHttpsCallable("drawCards")
                 .call(drawData)
@@ -370,16 +370,16 @@ public class FirebaseHelper {
                 });
     }
 
-    public static void playCard(Card card, UpdateTopCardListener updateTopCardListener){
+    public static void playCard(Card card, PlayCardListener updateTopCardListener){
         //FUNCTION CALL//
         callPlayCard(gameId, card).addOnCompleteListener(new OnCompleteListener<String>() {
             @Override
             public void onComplete(@NonNull Task<String> task) {
                 if (task.isSuccessful()) {
-                    updateTopCardListener.onTopCardSuccess();
+                    updateTopCardListener.playCardSuccess();
                 } else {
                     //task.getException().printStackTrace();
-                    updateTopCardListener.onTopCardFailure(task.getException().getMessage());
+                    updateTopCardListener.playCardFailure(task.getException().getMessage());
 
                     Exception e = task.getException();
                     if(e instanceof FirebaseFunctionsException) {
@@ -414,21 +414,20 @@ public class FirebaseHelper {
                 });
     }
 
-    public static void leaveGame(UpdateExitStatusListener updateExitStatusListener){
+    public static void leaveGame(){
         Map<String, Object> leaveGameData = new HashMap<>();
         leaveGameData.put("gameId", gameId);
         leaveGameData.put("uid", firebaseAuth.getUid());
-
         mFunctions.getHttpsCallable("leaveGame")
                 .call(leaveGameData)
                 .continueWith(new Continuation<HttpsCallableResult, String>() {
                     @Override
                     public String then(@NonNull Task<HttpsCallableResult> task){
                         if( task.isSuccessful() ) {
-                            updateExitStatusListener.onExitStatusChanged();
+                            Log.d(TAG, "then: success");
                         }
                         else{
-                            updateExitStatusListener.onExitFailure(task.getException().getMessage());
+                            Log.d(TAG, "then: failure");
                         }
                         return "";
                     }
