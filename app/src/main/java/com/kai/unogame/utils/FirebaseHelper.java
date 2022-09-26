@@ -358,6 +358,7 @@ public class FirebaseHelper {
     public static Task<String> drawCard(DrawCardListener drawCardListener) {
         Map<String, Object> drawData = new HashMap<>();
         drawData.put("uid", firebaseAuth.getUid());
+        drawData.put("gameId", gameId);
 
         return mFunctions.getHttpsCallable("drawCards")
                 .call(drawData)
@@ -370,32 +371,11 @@ public class FirebaseHelper {
                 });
     }
 
-    public static void playCard(Card card, PlayCardListener updateTopCardListener){
+    public static void playCard(Card playedCard, PlayCardListener playCardListener){
         //FUNCTION CALL//
-        callPlayCard(gameId, card).addOnCompleteListener(new OnCompleteListener<String>() {
-            @Override
-            public void onComplete(@NonNull Task<String> task) {
-                if (task.isSuccessful()) {
-                    updateTopCardListener.playCardSuccess();
-                } else {
-                    //task.getException().printStackTrace();
-                    updateTopCardListener.playCardFailure(task.getException().getMessage());
-
-                    Exception e = task.getException();
-                    if(e instanceof FirebaseFunctionsException) {
-                        FirebaseFunctionsException ffe = (FirebaseFunctionsException) e;
-                        FirebaseFunctionsException.Code code = ffe.getCode();
-                        Object details = ffe.getDetails();
-                        Log.d("FirebaseHelper playCard", "callPlayCard onComplete error: " + ffe);
-                    }
-                }
-            }
-        });
-    }
-
-    private static Task<String> callPlayCard(String gameId, Card playedCard) {
         Map<String, Object> playData = new HashMap<>();
-        playData.put("uid", gameId);
+        playData.put("uid", firebaseAuth.getUid());
+        playData.put("gameId", gameId);
         Map<String, Object> card = new HashMap<>();
         card.put("id", playedCard.getId());
         card.put("color", playedCard.getColor());
@@ -403,13 +383,18 @@ public class FirebaseHelper {
         card.put("value", playedCard.getValue());
         playData.put("card", card);
 
-        return mFunctions.getHttpsCallable("playCard")
+        mFunctions.getHttpsCallable("playCard")
                 .call(playData)
                 .continueWith(new Continuation<HttpsCallableResult, String>() {
                     @Override
-                    public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-                        HashMap<String, Object> result = (HashMap<String, Object>) task.getResult().getData();
-                        return (String) result.get("result");
+                    public String then(@NonNull Task<HttpsCallableResult> task) {
+                        if(task.isSuccessful()) {
+                            playCardListener.playCardSuccess();
+                        }
+                        else{
+                            playCardListener.playCardFailure(task.getException().getMessage());
+                        }
+                        return "";
                     }
                 });
     }
