@@ -158,4 +158,8 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
     public void onExitFailure(String message) {
         Log.d(TAG, "onExitFailure: ");
     }
+
+    public void updateTurn(){
+        FirebaseHelper.updateTurn();
+    }
 }

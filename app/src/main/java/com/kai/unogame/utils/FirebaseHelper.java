@@ -451,4 +451,38 @@ public class FirebaseHelper {
             }
         });
     }
+
+    public static void updateTurn(){
+        HashMap<String, Object> gameMap = new HashMap<>();
+        firebaseFirestore.collection("unoGames").document(gameId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    String uid = (String) task.getResult().get("turn");
+                    String user = (String) task.getResult().get("user1Id");
+                    String user2 = (String) task.getResult().get("user2Id");
+                    if(uid.contains(user)){
+                        gameMap.put("turn", user2);
+                    }
+                    else{
+                        gameMap.put("turn", user);
+                    }
+                    firebaseFirestore.collection("unoGames").document(gameId).update(gameMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task1) {
+                            if(task1.isSuccessful()){
+                                Log.d("FirebaseHelper", "onComplete: ");
+                            }
+                            else{
+                                Log.d("FirebaseHelper", "onComplete: "+ task1.getException().getMessage() );
+                            }
+                        }
+                    });
+                }
+                else{
+                    Log.d("FirebaseHelper", "onComplete: "+ task.getException().getMessage() );
+                }
+            }
+        });
+    }
 }

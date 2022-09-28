@@ -161,6 +161,7 @@ public class GameFragment extends Fragment implements CardClickedListener{
         binding.passTurn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                gameViewModel.updateTurn();
                 binding.drawCard.setEnabled(true);
                 binding.passTurn.setEnabled(false);
             }
