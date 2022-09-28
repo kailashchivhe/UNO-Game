@@ -11,7 +11,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,13 +20,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.kai.unogame.R;
 import com.kai.unogame.adapter.GameListAdapter;
 import com.kai.unogame.databinding.FragmentHomeBinding;
-import com.kai.unogame.databinding.GameLineItemBinding;
 import com.kai.unogame.listener.GameListClickedListener;
 import com.kai.unogame.model.Game;
 import com.kai.unogame.utils.FirebaseHelper;
@@ -96,7 +91,7 @@ public class HomeFragment extends Fragment implements GameListClickedListener {
         homeViewModel.getCreateGameLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                if(aBoolean){
+                if(aBoolean && !FirebaseHelper.getGameId().isEmpty()){
                     homeViewModel.initStartStatus();
                 }
                 else{
@@ -108,7 +103,7 @@ public class HomeFragment extends Fragment implements GameListClickedListener {
         homeViewModel.getStartStatusLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                if(aBoolean){
+                if(aBoolean && !FirebaseHelper.getGameId().isEmpty()){
                     navigateToGame();
                 }
                 else{
@@ -120,7 +115,7 @@ public class HomeFragment extends Fragment implements GameListClickedListener {
         homeViewModel.getJoinGameLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                if(aBoolean){
+                if(aBoolean && !FirebaseHelper.getGameId().isEmpty()){
                     homeViewModel.initStartStatus();
                 }
                 else{
@@ -166,12 +161,6 @@ public class HomeFragment extends Fragment implements GameListClickedListener {
     public void gameListClickedSuccessful(Game game) {
         //Join game using game.id
         homeViewModel.joinGame(game);
-    }
-
-    @Override
-    public void gameListClickedFailure(String message) {
-        //display message
-        Log.d(TAG, "gameListClickedFailure: ");
     }
 
     private void showAlert(String message) {

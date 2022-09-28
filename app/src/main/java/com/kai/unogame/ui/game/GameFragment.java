@@ -119,15 +119,10 @@ public class GameFragment extends Fragment implements CardClickedListener{
             }
         });
 
-        gameViewModel.getExitStatusLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+        gameViewModel.getExitStatusLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
-            public void onChanged(Boolean aBoolean) {
-                if(aBoolean){
-                    showAlert("Game over");
-                }
-                else{
-                    showAlert("Could not exit game!");
-                }
+            public void onChanged(String message) {
+                showAlert(message);
             }
         });
     }
@@ -194,7 +189,7 @@ public class GameFragment extends Fragment implements CardClickedListener{
         builder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if(message.contains("Game over")){
+                if(message.contains("Congratulations") || message.contains("Other player won") ){
                     navigateToHome();
                 }
             }

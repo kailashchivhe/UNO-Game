@@ -26,7 +26,7 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
     MutableLiveData<ArrayList<Card>> deckLiveData;
     MutableLiveData<ArrayList<Card>> userCardLiveData;
     MutableLiveData<Card> topCardLiveData;
-    MutableLiveData<Boolean> exitStatusLiveData;
+    MutableLiveData<String> exitStatusLiveData;
 
     public GameViewModel(@NonNull Application application) {
         super(application);
@@ -125,7 +125,7 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
         FirebaseHelper.leaveGame();
     }
 
-    public MutableLiveData<Boolean> getExitStatusLiveData() {
+    public MutableLiveData<String> getExitStatusLiveData() {
         return exitStatusLiveData;
     }
 
@@ -150,8 +150,8 @@ public class GameViewModel extends AndroidViewModel implements TurnListener, Dec
     }
 
     @Override
-    public void onExitSuccess() {
-        exitStatusLiveData.postValue(true);
+    public void onExitSuccess( String  message ) {
+        exitStatusLiveData.postValue(message);
     }
 
     @Override

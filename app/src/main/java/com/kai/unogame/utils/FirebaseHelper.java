@@ -61,6 +61,10 @@ public class FirebaseHelper {
         mFunctions = FirebaseFunctions.getInstance();
     }
 
+    public static String getGameId() {
+        return gameId;
+    }
+
     public static FirebaseUser getUser(){
         return firebaseAuth.getCurrentUser();
     }
@@ -250,6 +254,9 @@ public class FirebaseHelper {
     }
 
     public static void gameStartedListener(StartGameListener startGameListener){
+        if( gameId.isEmpty() ){
+            return;
+        }
         firebaseFirestore.collection("unoGames").document(gameId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -409,6 +416,7 @@ public class FirebaseHelper {
                     @Override
                     public String then(@NonNull Task<HttpsCallableResult> task){
                         if( task.isSuccessful() ) {
+                            gameId = "";
                             Log.d(TAG, "then: success");
                         }
                         else{
@@ -423,10 +431,16 @@ public class FirebaseHelper {
         firebaseFirestore.collection("unoGames").document(gameId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if( error == null && value != null && value.contains("exitStatus")){
-                    Boolean exitStatus = (Boolean) value.get("exitStatus");
-                    if(exitStatus){
-                        exitGameListener.onExitSuccess();
+                if( error == null && value != null && value.contains("winnerId")){
+                    String winnerId = (String) value.get("winnerId");
+                    if(!winnerId.isEmpty()){
+                        gameId = "";
+                        if(winnerId.contains(firebaseAuth.getUid())) {
+                            exitGameListener.onExitSuccess("Congratulations");
+                        }
+                        else{
+                            exitGameListener.onExitSuccess("Other player won");
+                        }
                     }
                 }
                 else if(error != null){
