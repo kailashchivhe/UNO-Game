@@ -91,11 +91,12 @@ public class HomeFragment extends Fragment implements GameListClickedListener {
         homeViewModel.getCreateGameLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                if(aBoolean && !FirebaseHelper.getGameId().isEmpty()){
-                    homeViewModel.initStartStatus();
-                }
-                else{
-                    showAlert("Game not created");
+                if(!FirebaseHelper.getGameId().isEmpty()) {
+                    if (aBoolean) {
+                        homeViewModel.initStartStatus();
+                    } else {
+                        showAlert("Game not created");
+                    }
                 }
             }
         });
@@ -103,11 +104,12 @@ public class HomeFragment extends Fragment implements GameListClickedListener {
         homeViewModel.getStartStatusLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                if(aBoolean && !FirebaseHelper.getGameId().isEmpty()){
-                    navigateToGame();
-                }
-                else{
-                    showAlert("Game start failed");
+                if(!FirebaseHelper.getGameId().isEmpty()) {
+                    if (aBoolean) {
+                        navigateToGame();
+                    } else {
+                        showAlert("Game start failed");
+                    }
                 }
             }
         });
@@ -115,11 +117,12 @@ public class HomeFragment extends Fragment implements GameListClickedListener {
         homeViewModel.getJoinGameLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                if(aBoolean && !FirebaseHelper.getGameId().isEmpty()){
-                    homeViewModel.initStartStatus();
-                }
-                else{
-                    showAlert("Game joined Failed");
+                if(!FirebaseHelper.getGameId().isEmpty()) {
+                    if (aBoolean) {
+                        homeViewModel.initStartStatus();
+                    } else {
+                        showAlert("Game joined Failed");
+                    }
                 }
             }
         });

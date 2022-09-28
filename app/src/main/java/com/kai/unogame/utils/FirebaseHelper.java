@@ -330,9 +330,11 @@ public class FirebaseHelper {
                                 (String)documentSnapshot.get("value"));
                         cardArrayList.add(card);
                     }
-                    topCardListener.onTopCardSuccess(cardArrayList.get(0));
+                    if( cardArrayList.size() > 0 ) {
+                        topCardListener.onTopCardSuccess(cardArrayList.get(0));
+                    }
                 }
-                else if(error != null){
+                else {
                     topCardListener.onTopFailure(error.getMessage());
                 }
             }
