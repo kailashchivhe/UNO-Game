@@ -409,24 +409,38 @@ public class FirebaseHelper {
     }
 
     public static void leaveGame(){
-        Map<String, Object> leaveGameData = new HashMap<>();
-        leaveGameData.put("gameId", gameId);
-        leaveGameData.put("uid", firebaseAuth.getUid());
-        mFunctions.getHttpsCallable("leaveGame")
-                .call(leaveGameData)
-                .continueWith(new Continuation<HttpsCallableResult, String>() {
-                    @Override
-                    public String then(@NonNull Task<HttpsCallableResult> task){
-                        if( task.isSuccessful() ) {
-                            gameId = "";
-                            Log.d(TAG, "then: success");
-                        }
-                        else{
-                            Log.d(TAG, "then: failure");
-                        }
-                        return "";
+        firebaseFirestore.collection("unoGames").document(gameId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    String winnerUserId = (String) task.getResult().get("user2Id");
+                    if(winnerUserId.contains(firebaseAuth.getUid())){
+                        winnerUserId = (String) task.getResult().get("user1Id");
                     }
-                });
+                    Map<String, Object> leaveGameData = new HashMap<>();
+                    leaveGameData.put("gameId", gameId);
+                    leaveGameData.put("uid", winnerUserId);
+                    mFunctions.getHttpsCallable("leaveGame")
+                            .call(leaveGameData)
+                            .continueWith(new Continuation<HttpsCallableResult, String>() {
+                                @Override
+                                public String then(@NonNull Task<HttpsCallableResult> task){
+                                    if( task.isSuccessful() ) {
+                                        gameId = "";
+                                        Log.d(TAG, "then: success");
+                                    }
+                                    else{
+                                        Log.d(TAG, "then: failure");
+                                    }
+                                    return "";
+                                }
+                            });
+                }
+                else{
+                    Log.d(TAG, "then: failure");
+                }
+            }
+        });
     }
 
     public static void exitGameListener(ExitGameListener exitGameListener){
